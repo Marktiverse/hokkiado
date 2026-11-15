@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>❄️ 2026 初冬北海道 11天10夜深度漫旅｜互動電子旅遊書</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: 思源黑體 & 思源宋體 營造日系手繪雜誌質感 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            washi: '#FAF8F5',       /* 60% 主色：溫潤和紙白 */
+            mist: '#F3EFE6',        /* 60% 主色：雪霧米白 */
+            linen: '#EAE4D7',       /* 30% 輔助色：亞麻暖沙 */
+            iceblue: '#E6EEF5',     /* 30% 輔助色：冰湖霧藍 */
+            indigoHok: '#1E3A5F',   /* 10% 點綴色：北海道深靛藍 */
+            terracotta: '#C85A32',  /* 10% 點綴色：初冬赤陶暖橘 */
+            pine: '#2D5A43',        /* 10% 點綴色：聖誕松針綠 */
+            ink: '#2C3036',
+            inkLight: '#5C6470',
+            borderWashi: '#E0D9CC'
+          },
+          fontFamily: {
+            sans: ['"Noto Sans TC"', 'sans-serif'],
+            serif: ['"Noto Serif TC"', 'serif'],
+          },
+          boxShadow: {
+            soft: '0 4px 20px -2px rgba(30, 58, 95, 0.06)',
+            card: '0 2px 10px rgba(44, 48, 54, 0.04)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #FAF8F5;
+      color: #2C3036;
+      background-image: radial-gradient(#E0D9CC 0.6px, transparent 0.6px);
+      background-size: 24px 24px;
+    }
+    /* 隱藏橫向捲軸但保留滑動功能 */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .watercolor-card {
+      background: linear-gradient(180deg, #FFFFFF 0%, #FDFBF7 100%);
+      border: 1px solid #E0D9CC;
+    }
+    .dashed-route {
+      stroke-dasharray: 6 6;
+      animation: dashMove 30s linear infinite;
+    }
+    @keyframes dashMove {
+      to { stroke-dashoffset: -120; }
+    }
+  </style>
+</head>
+<body class="font-sans antialiased selection:bg-iceblue selection:text-indigoHok pb-20">
+
+  <!-- 頂部固定導覽列 -->
+  <header class="sticky top-0 z-40 bg-washi/95 backdrop-blur-md border-b border-borderWashi shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 cursor-pointer" onclick="Controller.switchTab('overview')">
+        <span class="text-2xl">❄️</span>
+        <div>
+          <h1 class="font-serif font-bold text-base sm:text-lg text-indigoHok tracking-wide leading-tight">
+            2026 初冬北海道 11天10夜深度漫旅
+          </h1>
+          <p class="text-[11px] sm:text-xs text-inkLight">
+            2026.11.28 - 12.08｜新千歲 ➔ 札幌 ➔ 小樽 ➔ 美瑛富良野 ➔ 洞爺湖 ➔ 函館
+          </p>
+        </div>
+      </div>
+
+      <!-- 右側操作列：Google 登入同步狀態 & 雙模式切換 -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div id="syncStatusBadge" class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-linen text-inkLight border border-borderWashi">
+          <button onclick="Controller.signInGoogle()" class="inline-flex items-center gap-1 font-bold text-indigoHok hover:text-terracotta transition">
+            🔑 Google 登入同步
+          </button>
+        </div>
+
+        <button onclick="Controller.openDataModal()" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-linen hover:bg-iceblue text-indigoHok font-medium transition border border-borderWashi" title="備份匯出或檢視雲端狀態">
+          ⚙️ 備份/雲端
+        </button>
+
+        <button id="modeToggleBtn" onclick="Controller.toggleEditMode()" class="text-xs sm:text-sm px-3.5 py-1.5 rounded-lg font-medium transition shadow-sm flex items-center gap-1.5 bg-indigoHok text-white hover:opacity-95">
+          <span id="modeIcon">📖</span>
+          <span id="modeLabel">閱讀模式</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 天數分頁導覽列（橫向滑動） -->
+    <nav class="bg-mist/80 border-t border-borderWashi">
+      <div id="dayTabsContainer" class="max-w-6xl mx-auto px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <!-- 由 JS 動態渲染：總覽 + Day 1 ~ Day 11 -->
+      </div>
+    </nav>
+  </header>
+
+  <!-- 編輯模式提示橫幅 -->
+  <div id="editModeBanner" class="hidden bg-terracotta/10 border-b border-terracotta/30 text-terracotta text-xs sm:text-sm py-2 px-4 text-center font-medium">
+    ✏️ 目前為「編輯模式」：可新增、修改、上下排序行程，或直接編輯第一頁的每日大景點與三餐整理（所有變更皆會自動儲存）。
+  </div>
+
+  <!-- 主內容渲染容器 -->
+  <main id="appMain" class="max-w-6xl mx-auto px-4 pt-5">
+    <!-- 由 UI_VIEW 動態渲染 -->
+  </main>
+
+  <!-- Toast 通知氣泡 -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-16 opacity-0 transition-all duration-300 bg-indigoHok text-white text-sm px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 pointer-events-none">
+    <span id="toastMsg">已儲存變更</span>
+  </div>
+
+  <!-- 彈窗 1：新增 / 編輯行程節點 Modal -->
+  <div id="itemModal" class="fixed inset-0 z-50 hidden bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-washi border border-borderWashi rounded-2xl max-w-xl w-full p-5 sm:p-6 shadow-xl my-8 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-borderWashi">
+        <h3 id="itemModalTitle" class="font-serif font-bold text-lg text-indigoHok">新增行程節點</h3>
+        <button onclick="Controller.closeItemModal()" class="text-inkLight hover:text-ink text-xl leading-none">&times;</button>
+      </div>
+      <form id="itemForm" onsubmit="Controller.handleSaveItem(event)" class="space-y-4 mt-4 text-sm">
+        <input type="hidden" id="editItemId" />
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-inkLight mb-1">所屬天數</label>
+            <select id="editItemDay" class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2 focus:outline-none focus:border-indigoHok"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-inkLight mb-1">時間區段</label>
+            <input type="text" id="editItemTime" required placeholder="例如 09:30 - 11:00" class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2 focus:outline-none focus:border-indigoHok" />
+          </div>
+          <div class="col-span-2 sm:col-span-1">
+            <label class="block text-xs font-medium text-inkLight mb-1">類別標籤</label>
+            <select id="editItemCategory" class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2 focus:outline-none focus:border-indigoHok">
+              <option value="景點">🏔️ 景點</option>
+              <option value="餐廳">🍽️ 餐廳</option>
+              <option value="交通">🚃 交通</option>
+              <option value="住宿">🏨 住宿</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-inkLight mb-1">行程標題 *</label>
+          <input type="text" id="editItemTitle" required placeholder="例如：小樽三角市場（三色海鮮丼）" class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2 focus:outline-none focus:border-indigoHok" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-inkLight mb-1">Google Maps 搜尋關鍵字 / 網址</label>
+            <input type="text" id="editItemMap" placeholder="輸入店名、地址或貼上 Maps 連結" class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2 focus:outline-none focus:border-indigoHok" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-inkLight mb-1">營業時間 / 預估花費</label>
+            <input type="text" id="editItemHoursCost" placeholder="例如：08:00-17:00｜約 ¥2,500" class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2 focus:outline-none focus:border-indigoHok" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-inkLight mb-1">🚃 交通方式（起訖點 / 路線班次 / 車程）</label>
+          <input type="text" id="editItemTransport" placeholder="例如：JR 函館本線快速 Airport 號，札幌 ➔ 小樽約 35 分鐘" class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2 focus:outline-none focus:border-indigoHok" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-inkLight mb-1">✨ 鄰近活動與必吃／必逛特色</label>
+          <textarea id="editItemHighlights" rows="2" placeholder="記錄招牌餐點、拍照角度或周邊順遊亮點..." class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2 focus:outline-none focus:border-indigoHok"></textarea>
+        </div>
+
+        <!-- 圖片支援：網址或本機上傳 -->
+        <div class="bg-mist p-3 rounded-xl border border-borderWashi space-y-2">
+          <label class="block text-xs font-medium text-indigoHok">🖼️ 景點／美食圖片（貼上圖片網址或上傳照片）</label>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input type="text" id="editItemImageUrl" placeholder="貼上圖片 URL (https://...)" class="flex-1 rounded-lg border border-borderWashi bg-white px-3 py-1.5 text-xs focus:outline-none focus:border-indigoHok" />
+            <label class="cursor-pointer px-3 py-1.5 rounded-lg bg-white border border-borderWashi text-xs text-indigoHok font-medium hover:bg-iceblue text-center">
+              📁 上傳圖片
+              <input type="file" accept="image/*" onchange="Controller.handleImageUpload(event)" class="hidden" />
+            </label>
+          </div>
+          <img id="editImagePreview" src="" alt="預覽" class="hidden w-full h-32 object-cover rounded-lg border border-borderWashi mt-2" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-inkLight mb-1">📝 高彈性備註（訂位代號、注意事項）</label>
+          <textarea id="editItemNotes" rows="2" placeholder="例如：已預約 18:00 窗邊席，代號 #8821..." class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2 focus:outline-none focus:border-indigoHok"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-inkLight mb-1">☑️ 互動式勾選清單（每行一項）</label>
+          <textarea id="editItemChecklist" rows="3" placeholder="必買伴手禮&#10;預約確認信截圖" class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2 focus:outline-none focus:border-indigoHok"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-borderWashi">
+          <button type="button" onclick="Controller.closeItemModal()" class="px-4 py-2 rounded-lg bg-linen text-ink font-medium hover:opacity-90">取消</button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-indigoHok text-white font-medium hover:opacity-95 shadow-sm">儲存行程</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 彈窗 2：編輯單日「重點整理（大景點＋三餐＋住宿）」Modal -->
+  <div id="overviewEditModal" class="fixed inset-0 z-50 hidden bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-washi border border-borderWashi rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl">
+      <div class="flex items-center justify-between pb-3 border-b border-borderWashi">
+        <h3 id="overviewModalTitle" class="font-serif font-bold text-lg text-indigoHok">編輯當日重點整理</h3>
+        <button onclick="Controller.closeOverviewModal()" class="text-inkLight hover:text-ink text-xl leading-none">&times;</button>
+      </div>
+      <form onsubmit="Controller.handleSaveOverview(event)" class="space-y-3.5 mt-4 text-sm">
+        <input type="hidden" id="editOvDay" />
+        <div>
+          <label class="block text-xs font-medium text-inkLight mb-1">當日主題標題</label>
+          <input type="text" id="editOvTheme" required class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-inkLight mb-1">🏔️ 每日大景點（請以頓號「、」分隔）</label>
+          <input type="text" id="editOvHighlights" required class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-inkLight mb-1">🌅 早餐重點</label>
+          <input type="text" id="editOvBreakfast" class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-inkLight mb-1">☀️ 午餐重點</label>
+          <input type="text" id="editOvLunch" class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-inkLight mb-1">🌙 晚餐重點</label>
+          <input type="text" id="editOvDinner" class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-inkLight mb-1">🏨 當晚住宿</label>
+          <input type="text" id="editOvHotel" class="w-full rounded-lg border border-borderWashi bg-white px-3 py-2" />
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-borderWashi">
+          <button type="button" onclick="Controller.closeOverviewModal()" class="px-4 py-2 rounded-lg bg-linen text-ink font-medium">取消</button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-indigoHok text-white font-medium">更新總覽</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 彈窗 3：資料備份匯出/匯入 & Firebase 雲端同步狀態 Modal -->
+  <div id="dataModal" class="fixed inset-0 z-50 hidden bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-washi border border-borderWashi rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl space-y-5 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-borderWashi">
+        <h3 class="font-serif font-bold text-lg text-indigoHok">⚙️ 雲端帳號同步 & 離線備份</h3>
+        <button onclick="Controller.closeDataModal()" class="text-inkLight hover:text-ink text-xl leading-none">&times;</button>
+      </div>
+
+      <!-- Firebase 雲端雙向同步狀態 -->
+      <div class="bg-iceblue/50 p-4 rounded-xl border border-borderWashi space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="font-bold text-sm text-indigoHok">☁️ Firebase 雲端雙向同步（專案：hokkaido-5f175）</h4>
+        </div>
+        <p id="modalAuthStatusText" class="text-xs text-ink leading-relaxed">
+          請使用已授權的 Google 帳號登入，登入後所有修改與勾選都會即時與旅伴同步。
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <button id="modalLoginBtn" onclick="Controller.signInGoogle()" class="px-4 py-2 rounded-lg bg-indigoHok text-white text-xs font-bold hover:opacity-95 shadow-sm">
+            🔑 使用 Google 帳號登入
+          </button>
+          <button id="modalLogoutBtn" onclick="Controller.signOutGoogle()" class="hidden px-4 py-2 rounded-lg bg-linen text-ink text-xs font-medium hover:bg-terracotta/15 hover:text-terracotta border border-borderWashi">
+            登出目前帳號
+          </button>
+        </div>
+      </div>
+
+      <!-- 本地 JSON 匯出匯入 -->
+      <div class="bg-white p-4 rounded-xl border border-borderWashi space-y-3">
+        <h4 class="font-bold text-sm text-indigoHok">📦 離線備份與還原（JSON 檔）</h4>
+        <p class="text-xs text-inkLight leading-relaxed">
+          建議出發前匯出一份 JSON 檔案留存；即使在無網路的飛機上或地下鐵，本網頁仍可離線瀏覽與編輯，恢復連線後自動同步。
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="Controller.exportJSON()" class="px-3.5 py-2 rounded-lg bg-indigoHok text-white text-xs font-medium hover:opacity-95">
+            ⬇️ 匯出完整行程 (.json)
+          </button>
+          <label class="cursor-pointer px-3.5 py-2 rounded-lg bg-linen text-indigoHok text-xs font-medium hover:bg-iceblue border border-borderWashi">
+            ⬆️ 匯入行程 (.json)
+            <input type="file" accept=".json" onchange="Controller.importJSON(event)" class="hidden" />
+          </label>
+          <button onclick="Controller.resetDefaultData()" class="px-3.5 py-2 rounded-lg bg-terracotta/10 text-terracotta text-xs font-medium hover:bg-terracotta/20 ml-auto">
+            🔄 還原預設 11 天行程
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK (Modular v13.3.0 via CDN：含 App + Firestore + Auth) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
+
+    window.__FirebaseSDK = {
+      initializeApp,
+      getFirestore, doc, onSnapshot, setDoc,
+      getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+    };
+
+    if (window.FirebaseDataLayer) {
+      window.FirebaseDataLayer.initFirebase();
+    }
+  </script>
+
+  <script>
+    /**
+     * =========================================================================
+     * 模組 1: CONFIG_STATE（你的 Firebase 設定、預設 11 天行程與全局狀態）
+     * =========================================================================
+     */
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyC5zfQhTCLX7zBLD0pk2RtN5k7pZbnnjuI",
+      authDomain: "hokkaido-5f175.firebaseapp.com",
+      projectId: "hokkaido-5f175",
+      storageBucket: "hokkaido-5f175.firebasestorage.app",
+      messagingSenderId: "358586311521",
+      appId: "1:358586311521:web:af56169b9191f6e4e39b20"
+    };
+
+    const STORAGE_KEY_DATA = "hokkaido_2026_guidebook_data_v1";
+
+    const DEFAULT_TRIP_DATA = {
+      days_overview: [
+        {
+          day: 1,
+          date: "11/28 (六)",
+          region: "sapporo",
+          theme: "抵達北海道・札幌初雪夜",
+          highlights: ["新千歲機場", "紅磚露台 mont-bell", "札幌時計台", "大通公園白色燈樹節 & 慕尼黑聖誕市集"],
+          meals: {
+            breakfast: "桃園 T1 出發・IT234 機上輕食",
+            lunch: "新千歲機場巡禮（美瑛選果玉米麵包、一幻鮮蝦拉麵、KINOTOYA 霜淇淋 & 起司塔）",
+            dinner: "蟹座 Kani-za（帝王蟹＋松葉蟹＋毛蟹＋和牛涮涮鍋）＆聖誕市集熱紅酒"
+          },
+          hotel: "Cross Hotel Sapporo（札幌十字酒店・頂樓露天風呂）"
+        },
+        {
+          day: 2,
+          date: "11/29 (日)",
+          region: "sapporo",
+          theme: "神宮雪地野餐・藻岩山百萬夜景",
+          highlights: ["北海道神宮（雪地松鼠）", "伏見稻荷神社（27座鳥居）", "藻岩山纜車＆百萬夜景", "薄野 Nikka 招牌＆市電"],
+          meals: {
+            breakfast: "Marumugi Bakery (円麦) 麵包坊（可頌、紅豆奶油麵包）＋六花亭茶屋「判官餅」配熱綠茶",
+            lunch: "奧芝商店 おくしばぁちゃん（天婦羅鮮蝦湯咖哩）＋森彦本店手沖咖啡 & 菓心黑芝麻糰子",
+            dinner: "薄野味噌拉麵（白樺山莊 / 信玄）＋夜パフェ專門店 Parfaiteria PaL 聖代"
+          },
+          hotel: "Cross Hotel Sapporo（札幌十字酒店）"
+        },
+        {
+          day: 3,
+          date: "11/30 (一)",
+          region: "sapporo",
+          theme: "北大晨光・頂級薩福克烤羊肉",
+          highlights: ["北海道大學（雪白銀杏並木）", "札幌諏訪神社（冰封花手水）", "紅磚廳舍＆頓宮神社", "Sapporo Factory 聖誕樹＆電視塔夕陽"],
+          meals: {
+            breakfast: "Mermaid Coffee Roasters（手沖咖啡＋厚切奶油吐司）＋北大牛乳＆冰淇淋",
+            lunch: "回転寿しトリトン Toriton 迴轉壽司（干貝、炙燒比目魚鰭邊、鮭魚卵、牡丹蝦）＋BARISTART 拿鐵",
+            dinner: "炭火兜 Sumibi Kabuto（炭火現烤士別純種薩福克羊排佐山山葵）"
+          },
+          hotel: "Cross Hotel Sapporo（札幌十字酒店）"
+        },
+        {
+          day: 4,
+          date: "12/01 (二)",
+          region: "central",
+          theme: "小樽海景・青之運河雙重光影",
+          highlights: ["JR 朝里海岸列車", "船見坂＆住吉神社", "小樽運河（日景＆青之運河藍燈）", "北一廳煤油燈、音樂盒堂蒸氣鐘、天狗山夜景"],
+          meals: {
+            breakfast: "小樽三角市場（海膽、螃蟹、鮭魚卵「三色海鮮丼」）",
+            lunch: "cafe BAAL 歐風餐酒館（招牌牛排丼）＋北一廳皇家奶茶＆LeTAO 本店雙層起司蛋糕",
+            dinner: "石造倉庫餐廳 ISO（壁爐暖意＋海膽義大利麵）"
+          },
+          hotel: "Cross Hotel Sapporo（札幌十字酒店）"
+        },
+        {
+          day: 5,
+          date: "12/02 (三)",
+          region: "central",
+          theme: "美瑛粉紅雪・森林精靈童話夜",
+          highlights: ["美瑛孤獨的聖誕樹", "白鬚瀑布（青藍河水）", "四季彩之丘（雪上摩托車）", "新榮之丘日落粉紅雪＆森林精靈露台點燈"],
+          meals: {
+            breakfast: "JR 特急丁香號車上享用「ありんこ Arinko」手作起司鮭魚飯糰",
+            lunch: "KOERU / 小麥食堂（美瑛香麥豬排咖哩＋現炸可樂餅）＋美瑛牛乳霜淇淋",
+            dinner: "森之時計咖啡＆「初雪」蛋糕（傍晚），夜返薄野「札幌大衆酒場 有頂天」居酒屋"
+          },
+          hotel: "Cross Hotel Sapporo（札幌十字酒店）"
+        },
+        {
+          day: 6,
+          date: "12/03 (四)",
+          region: "sapporo",
+          theme: "和牛午宴・宮之森教會聖誕點燈",
+          highlights: ["中島公園＆豐平館", "二條市場", "大通公園燈樹節黃昏景觀", "宮之森聖法蘭西斯教會（萬盞聖誕點燈）"],
+          meals: {
+            breakfast: "さえら Saera（招牌帝王蟹＆水果雙層三明治＋手沖熱咖啡）",
+            lunch: "焼肉 徳寿（白老和牛午間套餐）＋六花亭札幌本店（現做蘭姆葡萄冰淇淋夾心餅）＆丸美珈琲 3F",
+            dinner: "四季花まる Shiki Hanamaru（炭烤特大花魚一夜干、烤干貝、花咲蟹湯）"
+          },
+          hotel: "Cross Hotel Sapporo（札幌十字酒店）"
+        },
+        {
+          day: 7,
+          date: "12/04 (五)",
+          region: "south",
+          theme: "洞爺湖絕景・無邊際露天風呂",
+          highlights: ["JR 特急北斗號海岸線", "有珠山纜車（火山口＆昭和新山）", "乃之風頂樓無邊際露天風呂 TENQOO", "洞爺湖冬季燈飾隧道（40萬顆LED）"],
+          meals: {
+            breakfast: "JR 特急北斗號車上享用「螃蟹鐵路便當（カニ駅弁）」",
+            lunch: "望羊蹄 Boyotei（70年昭和復古洋食館：鐵板漢堡排＆炸大蝦）",
+            dinner: "乃之風「波の音」主廚百匯（現煎北海道牛排＆現握壽司）"
+          },
+          hotel: "洞爺湖 乃之風リゾート（The Lake View Toya Nonokaze Resort）"
+        },
+        {
+          day: 8,
+          date: "12/05 (六)",
+          region: "south",
+          theme: "函館聖誕幻想節・海上煙火夜",
+          highlights: ["JR 北斗10號內浦灣雪景", "金森紅磚倉庫", "函館聖誕幻想節（20米海上聖誕樹＆煙火）", "函館正教會＆八幡坂夜雪漫步"],
+          meals: {
+            breakfast: "乃之風湖景早餐（晨湯後享用）",
+            lunch: "海灣景觀咖啡（Starbucks / Cafe LAMINAIRE）＋紅磚倉庫熱海鮮巧達濃湯",
+            dinner: "幸運小丑漢堡（中華雞腿堡＆起司薯條）＋長谷川商店（現烤雞肉串便當）"
+          },
+          hotel: "Tokyu STAY Hakodate Asaichi（東急STAY函館朝市・頂樓海景湯灯の湯）"
+        },
+        {
+          day: 9,
+          date: "12/06 (日)",
+          region: "south",
+          theme: "元町歐風漫步・函館山百萬夜景",
+          highlights: ["函館朝市", "舊函館區公會堂＆Little Feet 黑膠咖啡", "茶房菊泉（暖桌體驗）", "八幡坂日景＆函館山纜車（百萬夜景）"],
+          meals: {
+            breakfast: "函館朝市「きくよ食堂」（炭烤特大花魚定食＆三色海鮮丼）＋Angelique Voyage 草莓可麗餅",
+            lunch: "五島軒 雪河亭（明治皇室咖哩）＋阿佐利和牛可樂餅＋茶房菊泉（豆腐白玉紅豆湯）",
+            dinner: "成吉思汗 大黑屋（炭火七輪現烤厚切鮮嫩羊排配生啤）"
+          },
+          hotel: "Tokyu STAY Hakodate Asaichi（東急STAY函館朝市）"
+        },
+        {
+          day: 10,
+          date: "12/07 (一)",
+          region: "south",
+          theme: "五稜星之夢・黑毛和牛壽喜燒",
+          highlights: ["函館朝市現釣活烏賊", "青函連絡船紀念館「摩周丸」", "五稜郭塔＆「五稜星之夢」金色星形燈飾", "函館蔦屋書店（巨型壁爐夜讀）"],
+          meals: {
+            breakfast: "うに むらかみ Uni Murakami（無添加純生海膽丼＆鱈魚白子天婦羅）＋現釣活烏賊",
+            lunch: "舊英國領事館 Victorian Rose（維多利亞三層英式下午茶：司康＆玫瑰冰淇淋）",
+            dinner: "古民家 牛兵衛 Gyubei（北海道黑毛和牛壽喜燒佐濃郁蛋液）"
+          },
+          hotel: "Tokyu STAY Hakodate Asaichi（東急STAY函館朝市）"
+        },
+        {
+          day: 11,
+          date: "12/08 (二)",
+          region: "south",
+          theme: "晨湯海景・美鈴咖啡滿載歸國",
+          highlights: ["頂樓海景風呂「灯の湯」日出", "函館帝產巴士雪街前往函館機場", "台灣虎航 IT237 滿載歸國"],
+          meals: {
+            breakfast: "十字屋珈琲 Jujiya Coffee（手沖咖啡＆厚切奶油吐司）",
+            lunch: "函館機場 2F「美鈴咖啡 MISUZU Cafe」（炭燒咖啡、咖啡霜淇淋、熱壓三明治＋Snaffle's 起司歐姆蕾）",
+            dinner: "IT237 機上輕食 / 溫暖的家"
+          },
+          hotel: "溫暖的家"
+        }
+      ],
+      itinerary_items: [
+        // --- DAY 1 ---
+        {
+          id: "d1_1", day: 1, time: "03:10 - 06:20", category: "交通",
+          title: "桃園機場 T1 ➔ 新千歲機場 (虎航 IT234)",
+          location_query: "New Chitose Airport",
+          transport: "預約包車直達桃園機場第一航廈 ➔ 台灣虎航 IT234（06:20 起飛 / 10:55 抵達）",
+          hours_cost: "飛行約 3 小時 35 分",
+          highlights: "凌晨包車輕鬆出發，在雲海日出中飛往初冬銀白北海道。",
+          image_url: "", notes: "提前確認護照效期、Visit Japan Web 截圖、冬衣放隨身行李下機前穿上。",
+          checklist: [{ text: "Visit Japan Web 入境/海關 QR Code 截圖", done: false }, { text: "日幣現鈔與海外高回饋信用卡確認", done: false }]
+        },
+        {
+          id: "d1_2", day: 1, time: "10:55 - 14:15", category: "餐廳",
+          title: "新千歲機場美食巡禮（玉米麵包・一幻蝦拉麵・KINOTOYA）",
+          location_query: "New Chitose Airport Domestic Terminal",
+          transport: "新千歲機場國內線航廈 2F & 3F 美食街步行",
+          hours_cost: "10:00 - 20:00｜約 ¥3,000",
+          highlights: "必搶「美瑛選果」剛出爐玉米麵包、3F 北海道拉麵道場「えびそば一幻」濃郁蝦湯拉麵、2F「KINOTOYA」極上牛乳霜淇淋與現烤起司塔。",
+          image_url: "", notes: "美瑛選果玉米麵包出爐即秒殺，入境後建議先去排隊！",
+          checklist: [{ text: "美瑛選果玉米麵包", done: false }, { text: "一幻鮮蝦拉麵", done: false }, { text: "KINOTOYA 霜淇淋＆起司塔", done: false }]
+        },
+        {
+          id: "d1_3", day: 1, time: "14:42 - 15:20", category: "交通",
+          title: "JR 快速 Airport 號 ➔ 札幌車站",
+          location_query: "Sapporo Station",
+          transport: "新千歲機場 B1 JR 車站搭乘「快速 Airport 號」直達札幌站（約 38 分鐘）",
+          hours_cost: "指定席 u-Seat 約 ¥1,990 / 自由席 ¥1,150",
+          highlights: "銀藍色列車穿梭於覆滿初雪的石狩平原，感受北海道第一眼冬日浪漫。",
+          image_url: "", notes: "建議加購 u-Seat 指定席，大件行李放置更從容。",
+          checklist: [{ text: "購買 JR 車票或刷 Suica/ICOCA 進站", done: false }]
+        },
+        {
+          id: "d1_4", day: 1, time: "16:00", category: "住宿",
+          title: "Cross Hotel Sapporo（札幌十字酒店）Check-in",
+          location_query: "Cross Hotel Sapporo",
+          transport: "JR 札幌站南口步行約 5 分鐘",
+          hours_cost: "入住 15:00 / 退房 11:00",
+          highlights: "紅磚與玻璃現代設計旅店，頂樓 18F 設有可眺望札幌夜景的露天大浴場。",
+          image_url: "", notes: "進房先為 Fujifilm X-T50 相機與行動電源充電，輕裝出門逛街。",
+          checklist: [{ text: "辦理入住並放好大件行李", done: false }, { text: "相機電池充電＆換上防滑雪靴", done: false }]
+        },
+        {
+          id: "d1_5", day: 1, time: "16:40 - 17:50", category: "景點",
+          title: "Akarenga Terrace (mont-bell) ＆ 札幌時計台",
+          location_query: "Sapporo Clock Tower",
+          transport: "飯店步行 3 分鐘至紅磚露台，再步行 4 分鐘至時計台",
+          hours_cost: "mont-bell 10:00-20:00｜時計台外觀免費",
+          highlights: "先至紅磚露台 mont-bell 補齊防風羽絨或保暖配件，接著欣賞夜燈映照下的白色木造「札幌市時計台」。",
+          image_url: "", notes: "時計台對面建築 2 樓平台是拍攝正面全景的最佳角度。",
+          checklist: [{ text: "mont-bell 添購保暖手套/毛帽", done: false }]
+        },
+        {
+          id: "d1_6", day: 1, time: "18:10 - 19:00", category: "景點",
+          title: "大通公園白色燈樹節 ＆ 慕尼黑聖誕市集",
+          location_query: "Odori Park Sapporo",
+          transport: "時計台步行 3 分鐘至大通公園 2 丁目會場",
+          hours_cost: "點燈 16:30-22:00｜市集 11:00-21:00",
+          highlights: "漫步璀璨光之隧道與札幌電視塔夜景下，手捧一杯暖呼呼的德國香料熱紅酒（Glühwein），感受濃厚聖誕氣息。",
+          image_url: "", notes: "可加購年度限定紀念馬克杯裝熱紅酒。",
+          checklist: [{ text: "喝一杯熱紅酒拍聖誕市集燈飾", done: false }]
+        },
+        {
+          id: "d1_7", day: 1, time: "19:15 - 21:30", category: "餐廳",
+          title: "蟹座 Kani-za（三大蟹＋和牛涮涮鍋盛宴）＆ 頂樓露天風呂",
+          location_query: "Susukino Sapporo",
+          transport: "大通公園步行約 8 分鐘至薄野",
+          hours_cost: "晚餐預約 19:15｜回飯店泡湯至 01:00",
+          highlights: "一次大啖帝王蟹、松葉蟹、毛蟹與頂級和牛涮涮鍋！餐後返回 Cross Hotel 18F 頂樓露天溫泉賞星空夜景。",
+          image_url: "", notes: "已預訂 19:15 席次，享用完畢散步回飯店泡湯消除搭機疲勞。",
+          checklist: [{ text: "享用三大蟹＋和牛涮涮鍋", done: false }, { text: "頂樓露天風呂泡湯放鬆", done: false }]
+        },
+
+        // --- DAY 2 ---
+        {
+          id: "d2_1", day: 2, time: "08:20 - 08:45", category: "餐廳",
+          title: "Marumugi Bakery (円麦) 麵包坊",
+          location_query: "Marumugi Bakery Sapporo",
+          transport: "地鐵東西線「円山公園站」步行約 5 分鐘",
+          hours_cost: "07:00 - 15:00｜約 ¥1,000",
+          highlights: "藏身古民家木屋的人氣烘焙坊，使用北海道產小麥製作酥脆可頌、紅豆奶油麵包與法式鹹派。",
+          image_url: "", notes: "外帶幾顆麵包去神宮周邊散步享用也很愜意。",
+          checklist: [{ text: "購買招牌可頌與紅豆奶油麵包", done: false }]
+        },
+        {
+          id: "d2_2", day: 2, time: "08:45 - 10:30", category: "景點",
+          title: "北海道神宮（雪地松鼠）＆ 六花亭神宮茶屋「判官餅」",
+          location_query: "Hokkaido Jingu",
+          transport: "円山公園步行進入北海道神宮參道",
+          hours_cost: "神宮 07:00-16:00｜茶屋 09:00 開門",
+          highlights: "白雪覆蓋的木造鳥居與本殿莊嚴靜謐，林間常有可愛蝦夷松鼠跳躍；參拜後到六花亭茶屋吃現烤熱騰騰「判官餅」配免費熱煎茶。",
+          image_url: "", notes: "判官餅為神宮茶屋限定現烤蕎麥紅豆麻糬，務必趁熱吃！",
+          checklist: [{ text: "尋找雪地野生蝦夷松鼠", done: false }, { text: "品嚐現烤判官餅", done: false }]
+        },
+        {
+          id: "d2_3", day: 2, time: "11:00 - 12:15", category: "餐廳",
+          title: "奧芝商店 おくしばぁちゃん（天婦羅鮮蝦湯咖哩）",
+          location_query: "Okushiba Shoten Okushibaachan Sapporo",
+          transport: "円山地區搭乘計程車或步行前往（約 12 分鐘）",
+          hours_cost: "11:00 - 15:00｜約 ¥1,800",
+          highlights: "木質懷舊老宅風格，招牌每天現熬的濃厚甜蝦高湯底，搭配巨大炸蝦天婦羅與北海道甘甜時蔬。",
+          image_url: "", notes: "11:00 開門前 10 分鐘抵達可減少排隊時間。",
+          checklist: [{ text: "點招牌鮮蝦湯底＋天婦羅湯咖哩", done: false }]
+        },
+        {
+          id: "d2_4", day: 2, time: "12:30 - 14:00", category: "餐廳",
+          title: "MORIHICO. 森彦本店 ＆ 菓心黑芝麻糰子",
+          location_query: "MORIHICO Coffee Sapporo",
+          transport: "円山公園區域步行約 6 分鐘",
+          hours_cost: "10:00 - 18:00｜約 ¥1,200",
+          highlights: "爬滿藤蔓與白雪的經典木屋咖啡本店，必點本店限定深焙手沖「森之雫」，順遊附近「菓心」買軟糯黑芝麻糰子。",
+          image_url: "", notes: "店內氣氛極佳，適合放慢腳步享受札幌午後。",
+          checklist: [{ text: "品嚐本店限定「森之雫」咖啡", done: false }]
+        },
+        {
+          id: "d2_5", day: 2, time: "14:30 - 15:20", category: "景點",
+          title: "札幌伏見稻荷神社（27座朱紅千本鳥居）",
+          location_query: "Fushimi Inari Shrine Sapporo",
+          transport: "搭乘計程車前往約 10 分鐘",
+          hours_cost: "全天開放｜免費參觀",
+          highlights: "27 座鮮豔朱紅色鳥居沿著純白雪坡蜿蜒而上，午後斜陽灑落時紅白對比極具視覺震撼。",
+          image_url: "", notes: "階梯積雪較滑，上下坡請小心慢行。",
+          checklist: [{ text: "拍攝白雪與朱紅鳥居同框美照", done: false }]
+        },
+        {
+          id: "d2_6", day: 2, time: "15:45 - 17:45", category: "景點",
+          title: "藻岩山纜車 ＆ 山頂展望台（日本新三大夜景）",
+          location_query: "Mount Moiwa Ropeway",
+          transport: "伏見稻荷神社搭乘計程車約 6 分鐘至山麓站",
+          hours_cost: "10:30 - 22:00｜來回套票 ¥2,100",
+          highlights: "搭乘紅色纜車與迷你纜車登上 531 公尺山頂，在藍調時刻（Blue Hour）俯瞰札幌棋盤式街道華燈初上。",
+          image_url: "", notes: "山頂風大氣溫極低，務必戴好毛帽與圍巾。",
+          checklist: [{ text: "敲響山頂幸福之鐘並拍攝百萬夜景", done: false }]
+        },
+        {
+          id: "d2_7", day: 2, time: "18:00 - 20:30", category: "餐廳",
+          title: "薄野 Nikka 招牌 ➔ 味噌拉麵（白樺山莊/信玄）➔ Parfaiteria PaL 夜聖代",
+          location_query: "Parfaiteria PaL Sapporo",
+          transport: "藻岩山免費接駁車轉市電至「薄野站」",
+          hours_cost: "拉麵約 ¥1,000｜聖代約 ¥1,800",
+          highlights: "拍攝薄野十字路口經典 Nikka 威士忌霓虹招牌與路面電車，晚餐享用濃郁味噌拉麵，再以札幌獨有的藝術系「收尾夜聖代」畫下句點。",
+          image_url: "", notes: "Parfaiteria PaL 聖代造型精緻且甜度清爽，非常適合餐後享用。",
+          checklist: [{ text: "薄野路口 Nikka 看板合影", done: false }, { text: "體驗札幌文化「飯後夜聖代」", done: false }]
+        },
+
+        // --- DAY 3 ---
+        {
+          id: "d3_1", day: 3, time: "09:00 - 09:50", category: "餐廳",
+          title: "Mermaid Coffee Roasters（乾燥花木質閣樓咖啡）",
+          location_query: "Mermaid Coffee Roasters Sapporo",
+          transport: "地鐵「大通站」或「北12條站」步行前往",
+          hours_cost: "08:00 - 18:00｜約 ¥1,100",
+          highlights: "充滿乾燥花與木質香氣的挑高閣樓咖啡館，晨間來份現烘手沖咖啡與外酥內軟厚切奶油吐司。",
+          image_url: "", notes: "二樓窗邊座位採光極佳。",
+          checklist: [{ text: "享用晨間手沖咖啡與奶油吐司", done: false }]
+        },
+        {
+          id: "d3_2", day: 3, time: "10:00 - 10:45", category: "景點",
+          title: "北海道大學（雪白銀杏並木・古河講堂・北大牛乳）",
+          location_query: "Hokkaido University Sapporo",
+          transport: "步行進入北海道大學正門園區",
+          hours_cost: "校園免費參觀",
+          highlights: "漫步被白雪覆蓋的浪漫銀杏大道與歐風木造古河記念講堂，順道品嚐校內限定的濃醇「北大牛乳」與冰淇淋。",
+          image_url: "", notes: "校園腹地廣大，雪地散步氛圍寧靜優美。",
+          checklist: [{ text: "打卡古河記念講堂與雪白銀杏大道", done: false }, { text: "喝一瓶北大牛乳", done: false }]
+        },
+        {
+          id: "d3_3", day: 3, time: "10:50 - 11:30", category: "景點",
+          title: "札幌諏訪神社（冰封四季花手水・蕾絲御守）",
+          location_query: "Sapporo Suwa Shrine",
+          transport: "地鐵東豐線「北13條東站」步行約 3 分鐘",
+          hours_cost: "社務所 09:00 - 17:00",
+          highlights: "冬季限定絕景！五彩繽紛的鮮花被自然低溫冰封在透明冰塊手水舍中，還可求取超精緻的透明蕾絲御守。",
+          image_url: "", notes: "御守款式多樣，非常適合當作伴手禮。",
+          checklist: [{ text: "拍攝冰封花手水", done: false }, { text: "求取限量蕾絲御守", done: false }]
+        },
+        {
+          id: "d3_4", day: 3, time: "11:45 - 13:00", category: "餐廳",
+          title: "回転寿しトリトン Toriton 迴轉壽司（北8條光星店）",
+          location_query: "Kaitenzushi Toriton Kosei Sapporo",
+          transport: "諏訪神社步行約 8 分鐘",
+          hours_cost: "11:00 - 22:00｜約 ¥3,000",
+          highlights: "北海道最受歡迎的排隊迴轉壽司名店！必點肉厚鮮甜的北海道生干貝、炙燒比目魚鰭邊、爆量鮭魚卵軍艦與牡丹蝦。",
+          image_url: "", notes: "建議 11:45 前抽號碼牌候位。",
+          checklist: [{ text: "必吃北海道大干貝與牡丹蝦", done: false }]
+        },
+        {
+          id: "d3_5", day: 3, time: "13:20 - 14:40", category: "景點",
+          title: "北海道廳舊本廳舍（紅磚廳舍）＆ 頓宮神社「神宮之梅」",
+          location_query: "Former Hokkaido Government Office",
+          transport: "搭車返回札幌站南口區域步行",
+          hours_cost: "免費參觀",
+          highlights: "欣賞新巴洛克風格紅磚建築與雪景庭園，隨後散步至二條市場旁的「頓宮神社」，帶回精緻白瓷瓶裝梅酒「神宮之梅」。",
+          image_url: "", notes: "神宮之梅白瓷瓶身印有神社徽章，極具紀念價值。",
+          checklist: [{ text: "頓宮神社入手白瓷瓶「神宮之梅」", done: false }]
+        },
+        {
+          id: "d3_6", day: 3, time: "15:00 - 17:15", category: "景點",
+          title: "Sapporo Factory 15米巨大聖誕樹 ＆ 札幌電視塔夕陽",
+          location_query: "Sapporo Factory",
+          transport: "步行約 10 分鐘抵達 Sapporo Factory 中庭",
+          hours_cost: "整點燈光音樂秀 16:00 起｜電視塔展望台 ¥1,000",
+          highlights: "玻璃挑高中庭矗立著 15 公尺高的華麗聖誕樹，品嚐「BARISTART COFFEE」濃郁娟珊牛拿鐵後，登上札幌電視塔俯瞰大通公園夕陽與燈海。",
+          image_url: "", notes: "16:00 整點在 Sapporo Factory 有聖誕燈光音樂秀。",
+          checklist: [{ text: "觀看 16:00 巨大聖誕樹點燈秀", done: false }, { text: "登札幌電視塔拍大通公園全景", done: false }]
+        },
+        {
+          id: "d3_7", day: 3, time: "18:00 - 20:00", category: "餐廳",
+          title: "炭火兜 Sumibi Kabuto（頂級士別純種薩福克烤羊肉）",
+          location_query: "Sumibi Kabuto Sapporo",
+          transport: "薄野站步行約 4 分鐘",
+          hours_cost: "17:00 - 23:00｜約 ¥5,500",
+          highlights: "嚴選夢幻國產「士別純種薩福克羊」，炭火炙烤至粉嫩五分熟，完全無羊羶味且肉汁滿溢，搭配現磨北海道山山葵更是絕配。",
+          image_url: "", notes: "建議提前預約吧台或桌席。",
+          checklist: [{ text: "品嚐現烤粉嫩薩福克羊排", done: false }]
+        },
+
+        // --- DAY 4 ---
+        {
+          id: "d4_1", day: 4, time: "08:00 - 09:30", category: "餐廳",
+          title: "JR 朝里海景列車 ➔ 小樽三角市場（三色海鮮丼）",
+          location_query: "Sankaku Market Otaru",
+          transport: "JR 札幌站搭乘函館本線往小樽（靠右側座位欣賞朝里海景，約 35 分鐘）",
+          hours_cost: "三角市場 07:00 - 17:00｜約 ¥3,200",
+          highlights: "列車貼著積雪海岸線飛馳，抵達小樽站旁即達三角市場，大口享用鋪滿海膽、帝王蟹肉與鮭魚卵的豪華三色海鮮丼。",
+          image_url: "", notes: "去程坐火車行進方向「右側」才能拍到無敵海景！",
+          checklist: [{ text: "搶坐 JR 右側靠窗海景席", done: false }, { text: "三角市場吃三色海鮮丼", done: false }]
+        },
+        {
+          id: "d4_2", day: 4, time: "09:40 - 11:00", category: "景點",
+          title: "船見坂 ＆ 住吉神社（面海鳥居雪景）",
+          location_query: "Funamizaka Slope Otaru",
+          transport: "三角市場步行約 6 分鐘至船見坂，再搭車至南小樽站旁住吉神社",
+          hours_cost: "免費參觀",
+          highlights: "筆直陡峭的「船見坂」盡頭即是蔚藍石狩灣與港口船隻；接著造訪小樽總鎮守「住吉神社」，透過朱紅鳥居回望大海。",
+          image_url: "", notes: "船見坂斜度極高，拍照時請留意往來車輛。",
+          checklist: [{ text: "拍攝船見坂直通大海的經典視角", done: false }]
+        },
+        {
+          id: "d4_3", day: 4, time: "11:30 - 12:45", category: "餐廳",
+          title: "cafe BAAL 歐風餐酒館（招牌鐵板牛排丼）",
+          location_query: "cafe BAAL Otaru",
+          transport: "小樽運河周邊步行前往",
+          hours_cost: "11:30 - 15:00｜約 ¥2,000",
+          highlights: "質感溫馨的歐風小餐館，軟嫩多汁的炙燒牛排鋪滿香熱米飯，淋上特製和風洋蔥醬汁，美味度滿分。",
+          image_url: "", notes: "午間套餐性價比極高。",
+          checklist: [{ text: "享用招牌牛排丼", done: false }]
+        },
+        {
+          id: "d4_4", day: 4, time: "13:00 - 14:30", category: "景點",
+          title: "小樽運河白雪日景 ＆ 北一硝子三號館「北一廳」",
+          location_query: "Kitaichi Hall Otaru",
+          transport: "沿堺町通散步前往",
+          hours_cost: "北一廳 09:00 - 17:30｜奶茶約 ¥700",
+          highlights: "欣賞覆滿白雪的石造倉庫與運河倒影，走進點亮 167 盞手工煤油燈的「北一廳」，在琥珀色微光中喝一杯香濃皇家奶茶。",
+          image_url: "", notes: "北一廳內部禁止使用閃光燈拍照。",
+          checklist: [{ text: "在 167 盞煤油燈下喝皇家奶茶", done: false }]
+        },
+        {
+          id: "d4_5", day: 4, time: "14:40 - 15:30", category: "餐廳",
+          title: "LeTAO 本店雙層起司蛋糕 ＆ 小樽音樂盒堂蒸氣鐘",
+          location_query: "Otaru Music Box Museum",
+          transport: "童話十字路口步行即達",
+          hours_cost: "09:00 - 18:00｜蛋糕套餐約 ¥1,100",
+          highlights: "在 LeTAO 本店 2 樓享用入口即化的原味雙層起司蛋糕，並於整點觀看音樂盒堂門口百年青銅蒸氣鐘噴出白煙報時。",
+          image_url: "", notes: "每逢整點及每 15 分鐘蒸氣鐘會發出汽笛音。",
+          checklist: [{ text: "品嚐 LeTAO 雙層起司蛋糕", done: false }, { text: "錄下蒸氣鐘整點噴煙報時", done: false }]
+        },
+        {
+          id: "d4_6", day: 4, time: "16:00 - 17:45", category: "景點",
+          title: "小樽天狗山纜車（絕美弧形港灣藍調夜景）",
+          location_query: "Otaru Tenguyama Ropeway",
+          transport: "小樽站前或計程車約 15 分鐘至天狗山山麓站",
+          hours_cost: "來回纜車 ¥1,600",
+          highlights: "電影《情書》取景地！從山頂俯瞰如寶石般閃耀的弧形小樽港灣與積雪街景。",
+          image_url: "", notes: "日落前後 30 分鐘（約 16:15）天空呈現最迷人的寶藍色。",
+          checklist: [{ text: "拍攝小樽弧形港灣藍調時刻", done: false }]
+        },
+        {
+          id: "d4_7", day: 4, time: "18:30 - 20:30", category: "餐廳",
+          title: "石造倉庫餐廳 ISO 晚餐 ＆ 夜間「青之運河」萬盞藍燈",
+          location_query: "Otaru Canal",
+          transport: "下山後前往小樽運河沿岸",
+          hours_cost: "青之運河點燈至 22:30｜晚餐約 ¥3,500",
+          highlights: "在歷史石造倉庫改建的 ISO 餐廳壁爐旁享用濃郁海膽義大利麵，餐後漫步點亮一萬顆藍色 LED 的夢幻「青之運河」，再搭 JR 返回札幌。",
+          image_url: "", notes: "回程 JR 注意末班車時間（約 22:30 前從容返程）。",
+          checklist: [{ text: "拍攝夜晚夢幻「青之運河」藍燈倒影", done: false }]
+        },
+
+        // --- DAY 5 ---
+        {
+          id: "d5_1", day: 5, time: "08:00 - 10:03", category: "交通",
+          title: "「ありんこ Arinko」飯糰 ➔ JR 特急丁香號＆富良野線往美瑛",
+          location_query: "Biei Station",
+          transport: "札幌站購餐 ➔ 搭乘 JR 特急丁香號至旭川轉富良野線抵達美瑛站",
+          hours_cost: "車程約 2 小時 3 分",
+          highlights: "在火車上享用現捏熱呼呼的「起司鰹魚/鮭魚飯糰」，窗外風景從城市漸變為一望無際的純白美瑛丘陵。",
+          image_url: "", notes: "JR 富良野線班次較少，務必準時轉乘。",
+          checklist: [{ text: "札幌站買 Arinko 現捏起司飯糰", done: false }]
+        },
+        {
+          id: "d5_2", day: 5, time: "10:25 - 11:45", category: "景點",
+          title: "美瑛包車巡禮：孤獨的聖誕樹 ＆ 白鬚瀑布",
+          location_query: "Shirogane Blue Pond Shirahige Waterfall",
+          transport: "預約美瑛觀光計程車（包車巡遊各大雪原秘境）",
+          hours_cost: "包車依時數計費｜景點免費",
+          highlights: "純白雪丘上孤傲挺立的「聖誕樹」如明信片般靜謐；隨後前往白金溫泉區欣賞自岩縫傾瀉入鈷藍色美瑛川的「白鬚瀑布」。",
+          image_url: "", notes: "請遵守當地規範，切勿踩入私人農田雪地。",
+          checklist: [{ text: "拍攝雪原中孤獨的聖誕樹", done: false }, { text: "欣賞白鬚瀑布冰柱與藍河", done: false }]
+        },
+        {
+          id: "d5_3", day: 5, time: "12:15 - 13:15", category: "餐廳",
+          title: "KOERU / 小麥食堂（美瑛香麥豬排咖哩＆現炸可樂餅）",
+          location_query: "Biei Station",
+          transport: "美瑛站前商圈步行",
+          hours_cost: "11:00 - 15:00｜約 ¥1,600",
+          highlights: "使用美瑛當地小麥與甘甜馬鈴薯製作的酥脆炸豬排咖哩與現炸可樂餅，樸實卻令人難忘的鄉村美味。",
+          image_url: "", notes: "冬日中午來盤熱騰騰咖哩最暖胃。",
+          checklist: [{ text: "品嚐美瑛馬鈴薯現炸可樂餅", done: false }]
+        },
+        {
+          id: "d5_4", day: 5, time: "13:45 - 15:00", category: "景點",
+          title: "四季彩之丘（雪上摩托車馳騁・美瑛牛乳霜淇淋）",
+          location_query: "Shikisai no Oka Biei",
+          transport: "包車前往美瑛四季彩之丘",
+          hours_cost: "雪上摩托車體驗約 ¥2,000 起",
+          highlights: "在起伏遼闊的純白雪丘上親自駕駛雪上摩托車奔馳，遠眺壯麗十勝岳連峰，再吃一支濃郁美瑛牛乳霜淇淋。",
+          image_url: "", notes: "體驗雪上摩托車會提供安全帽與手套。",
+          checklist: [{ text: "體驗雪上摩托車奔馳", done: false }]
+        },
+        {
+          id: "d5_5", day: 5, time: "15:30 - 16:05", category: "景點",
+          title: "新榮之丘展望公園（日落粉紅雪・維納斯帶奇景）",
+          location_query: "Shinei no Oka Observatory Park",
+          transport: "包車前往新榮之丘",
+          hours_cost: "免費參觀（日落約 15:55）",
+          highlights: "初冬晴朗傍晚限定奇景！夕陽西下時，天際出現粉紫漸層的「維納斯帶」，將整片純白雪丘染成夢幻玫瑰粉紅雪。",
+          image_url: "", notes: "12 月初北海道日落極早（約 15:55），15:30 抵達卡位剛剛好。",
+          checklist: [{ text: "捕捉維納斯帶粉紅雪魔幻時刻", done: false }]
+        },
+        {
+          id: "d5_6", day: 5, time: "16:40 - 18:15", category: "景點",
+          title: "富良野森林精靈露台 Ningle Terrace ＆ 森之時計咖啡",
+          location_query: "Ningle Terrace Furano",
+          transport: "包車南下前往新富良野王子大飯店旁森林區",
+          hours_cost: "點燈 16:00 起｜咖啡蛋糕約 ¥1,300",
+          highlights: "雪林中 15 座手工藝小木屋亮起暖黃燈火，宛如走進童話繪本；接著在《溫柔時光》日劇取景地「森之時計」親手磨咖啡豆配「初雪」蛋糕。",
+          image_url: "", notes: "木棧道結冰易滑，請小心步伐。",
+          checklist: [{ text: "漫步亮燈的森林精靈露台", done: false }, { text: "在森之時計親自手磨咖啡豆", done: false }]
+        },
+        {
+          id: "d5_7", day: 5, time: "21:00 - 22:30", category: "餐廳",
+          title: "札幌大衆酒場 有頂天（薄野昭和復古居酒屋宵夜）",
+          location_query: "Susukino Sapporo",
+          transport: "由富良野返回札幌市區後步行至薄野",
+          hours_cost: "營業至深夜｜約 ¥3,000",
+          highlights: "充滿昭和懷舊海報與熱鬧氛圍的大眾居酒屋，點幾串炭火燒鳥、熱呼呼關東煮、新鮮刺身與冰涼生啤酒犒賞充實的一天。",
+          image_url: "", notes: "返抵札幌後的最佳深夜食堂。",
+          checklist: [{ text: "乾杯生啤酒慶祝美瑛富良野大成功", done: false }]
+        },
+
+        // --- DAY 6 ---
+        {
+          id: "d6_1", day: 6, time: "09:45 - 10:30", category: "餐廳",
+          title: "珈琲とサンドイッチの店 さえら Saera（帝王蟹三明治）",
+          location_query: "Saera Sapporo",
+          transport: "飯店步行約 5 分鐘至大通地下街出口旁 B3",
+          hours_cost: "10:00 - 18:00（週三休）｜約 ¥1,400",
+          highlights: "札幌在地人激推的老字號三明治名店！鬆軟吐司夾滿鮮甜帝王蟹肉沙拉與當季新鮮水果奶油，搭配手沖熱咖啡。",
+          image_url: "", notes: "招牌帝王蟹三明治非常搶手，建議開門前抵達。",
+          checklist: [{ text: "品嚐帝王蟹＋水果雙拼三明治", done: false }]
+        },
+        {
+          id: "d6_2", day: 6, time: "10:40 - 12:00", category: "景點",
+          title: "中島公園雪杉步道 ＆ 國指定重要文化財「豐平館」",
+          location_query: "Hoheikan Sapporo",
+          transport: "地鐵南北線「中島公園站」步行 3 分鐘",
+          hours_cost: "公園免費｜豐平館入館 ¥300",
+          highlights: "漫步高聳雪松林道，欣賞明治時代西洋木造建築「豐平館」純白外牆與鮮明群青藍窗框倒映在結冰池畔。",
+          image_url: "", notes: "白雪配群青藍建築非常有北歐童話感。",
+          checklist: [{ text: "拍攝豐平館雪景倒影", done: false }]
+        },
+        {
+          id: "d6_3", day: 6, time: "12:30 - 14:00", category: "餐廳",
+          title: "二條市場巡禮 ➔ 焼肉 徳寿（白老和牛午間燒肉套餐）",
+          location_query: "Yakiniku Tokuju Sapporo",
+          transport: "步行至二條市場逛逛後前往焼肉徳寿",
+          hours_cost: "午間套餐約 ¥2,500 - ¥3,800",
+          highlights: "先在復古二條市場欣賞肥美帝王蟹與哈密瓜攤位，中午大啖油花如大理石般細緻的北海道「白老和牛」燒肉午宴。",
+          image_url: "", notes: "平日午間套餐價格比晚餐親民許多，CP值極高。",
+          checklist: [{ text: "享用白老和牛燒肉午間套餐", done: false }]
+        },
+        {
+          id: "d6_4", day: 6, time: "14:15 - 15:30", category: "餐廳",
+          title: "六花亭 札幌本店（現做蘭姆葡萄冰淇淋夾心餅）",
+          location_query: "Rokkatei Sapporo Main Store",
+          transport: "札幌站南口步行約 4 分鐘",
+          hours_cost: "喫茶室 11:00 - 16:30｜約 ¥800",
+          highlights: "本店 2 樓喫茶室限定！現場夾入北海道濃醇冰淇淋與蘭姆葡萄奶油的「マルセイアイスサンド」，餅乾酥脆冰涼。",
+          image_url: "", notes: "賞味期限只有短短幾分鐘，務必現場立刻品嚐！",
+          checklist: [{ text: "吃本店限定蘭姆葡萄冰淇淋夾心餅", done: false }]
+        },
+        {
+          id: "d6_5", day: 6, time: "16:00 - 17:00", category: "餐廳",
+          title: "丸美珈琲店 3F（窗邊俯瞰大通公園聖誕點燈亮起）",
+          location_query: "Marumi Coffee Stand Sapporo",
+          transport: "大通公園西 1 丁目旁大樓 3F",
+          hours_cost: "08:00 - 20:00｜約 ¥700",
+          highlights: "絕佳高空窗邊私房座位！一邊啜飲職人自家烘焙咖啡，一邊靜待 16:30 大通公園白色燈樹節與電視塔瞬間點亮。",
+          image_url: "", notes: "16:00 前抵達較有機會坐到第一排窗景位。",
+          checklist: [{ text: "窗邊見證 16:30 大通公園點燈瞬間", done: false }]
+        },
+        {
+          id: "d6_6", day: 6, time: "17:30 - 18:45", category: "景點",
+          title: "宮之森聖法蘭西斯教會（一萬盞聖誕燈飾浪漫庭院）",
+          location_query: "Miyanomori St Francis Church Sapporo",
+          transport: "搭乘計程車前往宮之森山丘（約 15 分鐘）",
+          hours_cost: "冬季點燈免費參觀",
+          highlights: "歐式石砌教堂與雪松庭園被超過一萬顆暖白燈泡包圍，宛如置身歐洲山城聖誕夜。",
+          image_url: "", notes: "回程可請計程車或透過 GO App 叫車返回市區。",
+          checklist: [{ text: "拍攝宮之森教會萬盞聖誕點燈", done: false }]
+        },
+        {
+          id: "d6_7", day: 6, time: "19:15 - 21:00", category: "餐廳",
+          title: "四季花まる Shiki Hanamaru（炭烤特大花魚一夜干・花咲蟹湯）",
+          location_query: "Shiki Hanamaru Sapporo",
+          transport: "札幌市區分店（時計台通店或南2条店）",
+          hours_cost: "17:00 - 22:30｜約 ¥3,000",
+          highlights: "根室花丸旗下的居酒屋料理品牌！必點油脂豐厚、外皮焦香的「炭烤特大花魚一夜干」、醬烤北海道活干貝與鮮美花咲蟹鐵砲汁。",
+          image_url: "", notes: "札幌最後一晚，回到飯店記得打包行李準備明早移動至洞爺湖。",
+          checklist: [{ text: "大啖炭烤特大花魚一夜干", done: false }, { text: "睡前整理行李準備退房", done: false }]
+        },
+
+        // --- DAY 7 ---
+        {
+          id: "d7_1", day: 7, time: "08:30 - 10:30", category: "交通",
+          title: "JR 特急北斗號 ➔ 洞爺湖（車上享用螃蟹鐵路便當）",
+          location_query: "Toya Station",
+          transport: "JR 札幌站搭乘「特急北斗號（Hokuto）」南下至洞爺站（約 1 小時 55 分）",
+          hours_cost: "指定席約 ¥6,200｜便當約 ¥1,400",
+          highlights: "在札幌站買好經典「螃蟹鐵路便當（カニ駅弁）」，列車沿著白雪覆蓋的太平洋海岸線馳騁，抵達洞爺站後轉乘飯店接駁車或巴士至湖畔。",
+          image_url: "", notes: "記得提前預約「洞爺湖乃之風」或確認道南巴士時刻表。",
+          checklist: [{ text: "購買札幌站招牌螃蟹鐵路便當", done: false }]
+        },
+        {
+          id: "d7_2", day: 7, time: "11:15 - 12:30", category: "餐廳",
+          title: "望羊蹄 Boyotei（70年昭和復古洋食館・鐵板漢堡排）",
+          location_query: "Boyotei Lake Toya",
+          transport: "洞爺湖溫泉街中心步行即達",
+          hours_cost: "11:00 - 20:00｜約 ¥1,800",
+          highlights: "創業超過 70 年的昭和懷舊老店，滋滋作響的鐵板多汁漢堡排與金黃酥脆炸大蝦，充滿濃厚時代人情味。",
+          image_url: "", notes: "窗邊座位可遠眺洞爺湖中島。",
+          checklist: [{ text: "品嚐招牌鐵板漢堡排＆炸大蝦", done: false }]
+        },
+        {
+          id: "d7_3", day: 7, time: "13:30 - 15:30", category: "景點",
+          title: "有珠山纜車（俯瞰火山口・昭和新山・洞爺湖全景）",
+          location_query: "Usuzan Ropeway",
+          transport: "洞爺湖溫泉搭乘計程車或巴士約 15 分鐘至昭和新山山麓站",
+          hours_cost: "來回纜車 ¥1,800",
+          highlights: "搭乘大型全景纜車登上有珠山，一側是仍在冒著白煙的赤褐色活火山「昭和新山」與銀白火山口，另一側則是如鏡面般的洞爺湖與內浦灣。",
+          image_url: "", notes: "山頂展望台視野極度開闊。",
+          checklist: [{ text: "拍攝昭和新山與洞爺湖全景合照", done: false }]
+        },
+        {
+          id: "d7_4", day: 7, time: "16:30 - 18:30", category: "住宿",
+          title: "洞爺湖 乃之風リゾート（頂樓無邊際露天風呂 TENQOO）",
+          location_query: "The Lake View Toya Nonokaze Resort",
+          transport: "返回洞爺湖畔辦理入住",
+          hours_cost: "入住 15:00 / 退房 11:00",
+          highlights: "洞爺湖頂級溫泉度假飯店！直上頂樓「TENQOO」無邊際露天風呂，在藍調黃昏中讓溫泉水面與洞爺湖、羊蹄山雪景連成一線。",
+          image_url: "", notes: "傍晚 16:30 左右泡湯可同時欣賞夕陽餘暉與湖面微光。",
+          checklist: [{ text: "體驗頂樓無邊際露天風呂 TENQOO", done: false }]
+        },
+        {
+          id: "d7_5", day: 7, time: "19:00 - 20:20", category: "餐廳",
+          title: "乃之風「波の音 Nami no Oto」主廚自助百匯晚餐",
+          location_query: "The Lake View Toya Nonokaze Resort",
+          transport: "飯店內餐廳",
+          hours_cost: "包含於一泊二食方案內",
+          highlights: "現場鐵板現煎北海道和牛排、職人現握壽司、季節天婦羅與精緻甜點，大面落地窗映照湖畔夜色。",
+          image_url: "", notes: "現煎牛排與現握壽司區最受歡迎。",
+          checklist: [{ text: "享用現煎北海道牛排＆現握壽司", done: false }]
+        },
+        {
+          id: "d7_6", day: 7, time: "20:30 - 21:30", category: "景點",
+          title: "洞爺湖冬季燈飾隧道（40萬顆 LED 光之迴廊）",
+          location_query: "Lake Toya Illumination Tunnel",
+          transport: "飯店門口步行 2 分鐘至溫泉街廣場",
+          hours_cost: "17:00 - 22:00｜免費參觀",
+          highlights: "全長約 70 公尺的拱形燈光隧道由 40 萬顆彩色 LED 燈泡組成，在雪夜中閃耀如夢幻銀河。",
+          image_url: "", notes: "泡完溫泉散步出來拍照記得穿暖外套。",
+          checklist: [{ text: "穿過 40 萬顆燈泡組成的光之隧道", done: false }]
+        },
+
+        // --- DAY 8 ---
+        {
+          id: "d8_1", day: 8, time: "08:30 - 13:45", category: "交通",
+          title: "乃之風湖景早餐 ➔ JR 北斗10號沿海往函館 ➔ Tokyu STAY",
+          location_query: "Tokyu STAY Hakodate Asaichi",
+          transport: "飯店接駁巴士至洞爺站 ➔ 搭乘 JR 特急北斗 10 號沿內浦灣抵達函館站（約 1 小時 50 分）",
+          hours_cost: "指定席約 ¥5,800",
+          highlights: "清晨再泡一次湖景晨湯與豐盛早餐後，搭乘火車沿著浪花拍打雪岸的內浦灣抵達函館，入住緊鄰朝市的「Tokyu STAY 函館朝市」。",
+          image_url: "", notes: "Tokyu STAY 房內附洗脫烘衣機，非常適合行程第 8 天清洗衣物！",
+          checklist: [{ text: "洞爺站搭乘 JR 北斗 10 號", done: false }, { text: "入住 Tokyu STAY 函館朝市", done: false }]
+        },
+        {
+          id: "d8_2", day: 8, time: "15:00 - 16:30", category: "餐廳",
+          title: "Starbucks 函館海灣店 / Cafe LAMINAIRE（港灣海景午茶）",
+          location_query: "Starbucks Coffee Hakodate Bayside",
+          transport: "飯店沿港灣步行約 10 分鐘至金森紅磚倉庫區",
+          hours_cost: "約 ¥800",
+          highlights: "坐在紅磚建築改建的海景窗邊，看著港口船隻與飄落的雪花，悠閒等待傍晚聖誕點燈時刻。",
+          image_url: "", notes: "2 樓窗景座位視野極佳。",
+          checklist: [{ text: "港灣海景咖啡小憩暖身", done: false }]
+        },
+        {
+          id: "d8_3", day: 8, time: "17:00 - 18:15", category: "景點",
+          title: "金森紅磚倉庫 ＆ 函館聖誕幻想節（20米海上聖誕樹＋煙火）",
+          location_query: "Kanemori Red Brick Warehouse",
+          transport: "金森紅磚倉庫前港灣廣場",
+          hours_cost: "18:00 每日點燈與煙火施放｜免費參觀",
+          highlights: "手捧一杯熱騰騰「海鮮巧達濃湯」，迎接 18:00 漂浮在海面上的 20 公尺巨型聖誕樹點燈與絢爛港灣煙火秀！",
+          image_url: "", notes: "17:45 前先到湯品攤位買好濃湯，並至海邊找好拍攝煙火的位置。",
+          checklist: [{ text: "喝湯品攤位暖心海鮮巧達濃湯", done: false }, { text: "拍攝 18:00 海上聖誕樹點燈＋煙火", done: false }]
+        },
+        {
+          id: "d8_4", day: 8, time: "19:00 - 20:15", category: "餐廳",
+          title: "幸運小丑漢堡 Lucky Pierrot ＆ 長谷川商店烤肉串便當",
+          location_query: "Lucky Pierrot Marina Suehiro",
+          transport: "紅磚倉庫旁步行 2 分鐘",
+          hours_cost: "約 ¥1,500",
+          highlights: "函館靈魂美食雙重奏！現炸酸甜多汁的「中華雞腿堡」配肉醬起司薯條，再外帶一盒隔壁長谷川商店現烤豬肉串便當。",
+          image_url: "", notes: "長谷川商店烤肉串（やきとり弁当）其實是鮮嫩豬五花肉串，必點！",
+          checklist: [{ text: "吃幸運小丑漢堡中華雞腿堡", done: false }, { text: "外帶長谷川商店現烤肉串便當", done: false }]
+        },
+        {
+          id: "d8_5", day: 8, time: "20:30 - 22:00", category: "景點",
+          title: "夜訪函館正教會 ＆ 八幡坂雪夜燈海 ➔ 頂樓「灯の湯」海景湯",
+          location_query: "Hachimanzaka Slope Hakodate",
+          transport: "元町坡道散步後搭計程車或步行回飯店",
+          hours_cost: "夜間點燈至 22:00",
+          highlights: "避開人潮，在靜謐雪夜中欣賞打上柔光的拜占庭式「函館正教會」與無人「八幡坂」直通港灣燈海，回飯店直上頂樓露天海景風呂「灯の湯」。",
+          image_url: "", notes: "元町坡道冬季結冰較滑，走路務必放慢腳步。",
+          checklist: [{ text: "拍攝無人雪夜八幡坂港景", done: false }, { text: "泡飯店頂樓「灯の湯」露天海景浴池", done: false }]
+        },
+
+        // --- DAY 9 ---
+        {
+          id: "d9_1", day: 9, time: "08:15 - 09:30", category: "餐廳",
+          title: "函館朝市「きくよ食堂 Kikuyo Shokudo」（炭烤花魚定食＆三色丼）",
+          location_query: "Kikuyo Shokudo Hakodate Morning Market",
+          transport: "飯店步行 1 分鐘即達函館朝市",
+          hours_cost: "06:00 - 14:00｜約 ¥2,500",
+          highlights: "創業超過一甲子的朝市名店，必點炭火現烤油脂噴香的「特大花魚定食」與海膽、干貝、鮭魚卵「巴丼（三色海鮮丼）」。",
+          image_url: "", notes: "本店或分店皆可，早上 8 點多去非常順暢。",
+          checklist: [{ text: "品嚐炭烤特大花魚定食＆三色海鮮丼", done: false }]
+        },
+        {
+          id: "d9_2", day: 9, time: "09:45 - 11:30", category: "景點",
+          title: "舊函館區公會堂 ➔ Angelique Voyage 可麗餅 ➔ Little Feet 黑膠咖啡",
+          location_query: "Old Public Hall of Hakodate Ward",
+          transport: "搭乘函館市電至「末廣町站」步行上坡",
+          hours_cost: "公會堂入館 ¥300｜可麗餅約 ¥850",
+          highlights: "欣賞藍灰配明黃的明治洋風「舊函館區公會堂」，品嚐 30 分鐘賞味期限的「Angelique Voyage」生奶油草莓可麗餅，再到藍色木屋黑膠咖啡館「Little Feet」聽音樂。",
+          image_url: "", notes: "Angelique Voyage 每日限量，建議上午前往。",
+          checklist: [{ text: "打卡藍黃色舊函館區公會堂", done: false }, { text: "吃賞味期限 30 分鐘草莓可麗餅", done: false }]
+        },
+        {
+          id: "d9_3", day: 9, time: "12:00 - 13:45", category: "餐廳",
+          title: "五島軒 雪河亭（明治皇室風咖哩）＆ 阿佐利和牛可樂餅",
+          location_query: "Gotoken Sekkatei Hakodate",
+          transport: "元町地區步行前往",
+          hours_cost: "11:30 - 14:30｜約 ¥2,400",
+          highlights: "在百年老店「五島軒」水晶吊燈下品嚐傳承自明治時代的皇室秘製咖哩，餐後散步至百年肉舖「阿佐利本店」買現炸多汁和牛可樂餅。",
+          image_url: "", notes: "阿佐利可樂餅下午經常提早完售，建議午餐後順路購買。",
+          checklist: [{ text: "享用五島軒明治皇室咖哩", done: false }, { text: "買阿佐利現炸和牛可樂餅", done: false }]
+        },
+        {
+          id: "d9_4", day: 9, time: "14:15 - 15:00", category: "餐廳",
+          title: "茶房 菊泉（百年古民家暖桌・豆腐白玉紅豆湯）",
+          location_query: "Sabo Kikuizumi Hakodate",
+          transport: "八幡坂上方步行 2 分鐘",
+          hours_cost: "10:00 - 17:00（週四休）｜約 ¥850",
+          highlights: "走進大正時代酒問屋改建的日式町家，把雙腳伸進溫暖的「日式暖桌（こたつ）」裡，品嚐軟綿滑順的豆腐白玉紅豆湯。",
+          image_url: "", notes: "冬日躲進暖桌喝熱甜湯是最療癒的日式體驗！",
+          checklist: [{ text: "體驗日式暖桌與豆腐白玉紅豆湯", done: false }]
+        },
+        {
+          id: "d9_5", day: 9, time: "15:15 - 17:30", category: "景點",
+          title: "八幡坂日景 ➔ 函館山纜車（世界三大百萬夜景・沙漏雙海灣）",
+          location_query: "Mount Hakodate Ropeway",
+          transport: "茶房菊泉步行約 8 分鐘至函館山纜車山麓站",
+          hours_cost: "來回纜車 ¥1,800（12月日落約 16:05）",
+          highlights: "先拍白天雪景版八幡坂，15:40 左右搭乘纜車登頂，見證世界三大夜景之「雙海灣沙漏造型」在暮色與萬家燈火中閃耀。",
+          image_url: "", notes: "15:45 前登頂可搶到展望台第一排好位置。",
+          checklist: [{ text: "拍攝函館山沙漏型雙海灣百萬夜景", done: false }]
+        },
+        {
+          id: "d9_6", day: 9, time: "18:15 - 20:15", category: "餐廳",
+          title: "成吉思汗 大黑屋（炭火七輪現烤厚切鮮嫩羊排）",
+          location_query: "Genghis Khan Daikokuya Hakodate",
+          transport: "下山後搭乘計程車或市電至大門橫丁旁",
+          hours_cost: "17:00 - 23:00｜約 ¥4,500",
+          highlights: "北海道成吉思汗烤肉名店！全程冷藏未冷凍的厚切生羊肩排，在炭火七輪上烤得外焦內嫩，配一口冰涼札幌生啤超過癮。",
+          image_url: "", notes: "建議提前透過官網或電話訂位。",
+          checklist: [{ text: "大啖炭火現烤厚切生羊排配生啤", done: false }]
+        },
+
+        // --- DAY 10 ---
+        {
+          id: "d10_1", day: 10, time: "08:30 - 10:15", category: "餐廳",
+          title: "うに むらかみ Uni Murakami（無添加純生海膽丼）＆ 朝市現釣活烏賊",
+          location_query: "Uni Murakami Hakodate",
+          transport: "飯店步行 2 分鐘至函館朝市",
+          hours_cost: "08:30 - 14:00｜海膽丼約 ¥5,500",
+          highlights: "海膽加工廠直營！完全不使用明礬的純生海膽入口甘甜濃郁毫無苦味，搭配炸鱈魚白子天婦羅；餐後到朝市體驗「現釣活烏賊」現切生魚片。",
+          image_url: "", notes: "Uni Murakami 08:30 開門，建議一開門就去免排長隊。",
+          checklist: [{ text: "品嚐無添加純生海膽丼", done: false }, { text: "體驗函館朝市現釣活烏賊", done: false }]
+        },
+        {
+          id: "d10_2", day: 10, time: "11:00 - 13:45", category: "景點",
+          title: "青函連絡船紀念館「摩周丸」➔ 舊英國領事館 Victorian Rose 下午茶",
+          location_query: "Old British Consulate of Hakodate",
+          transport: "朝市步行至港邊摩周丸，再搭市電至元町舊英國領事館",
+          hours_cost: "摩周丸 ¥500｜三層下午茶約 ¥2,200",
+          highlights: "參觀見證青函隧道通車前歷史的黃白船身「摩周丸」，中午在舊英國領事館「Victorian Rose」典雅洋房享用英式三層架司康與玫瑰冰淇淋。",
+          image_url: "", notes: "玫瑰冰淇淋香氣高雅獨特。",
+          checklist: [{ text: "享用維多利亞三層英式下午茶", done: false }]
+        },
+        {
+          id: "d10_3", day: 10, time: "15:30 - 17:15", category: "景點",
+          title: "五稜郭塔 ＆ 五稜郭公園「五稜星之夢」金色星形燈飾",
+          location_query: "Goryokaku Tower",
+          transport: "搭乘函館市電至「五稜郭公園前站」步行約 10 分鐘",
+          hours_cost: "五稜郭塔展望台 ¥1,000｜點燈 16:00 起",
+          highlights: "登上 107 公尺高五稜郭塔俯瞰巨大五芒星雪堡！16:00 暮色降臨時，護城河周圍 2,000 顆燈泡同時亮起，化為閃耀雪地的「五稜星之夢」。",
+          image_url: "", notes: "15:45 登塔可一次拍到白雪日景與 16:00 點燈後的金色星形夜景。",
+          checklist: [{ text: "五稜郭塔俯瞰「五稜星之夢」點燈", done: false }]
+        },
+        {
+          id: "d10_4", day: 10, time: "18:00 - 19:45", category: "餐廳",
+          title: "古民家 牛兵衛 Gyubei（北海道黑毛和牛壽喜燒）",
+          location_query: "Gyubei Hakodate",
+          transport: "搭乘計程車前往古民家餐廳",
+          hours_cost: "晚餐預約 18:00｜約 ¥6,500",
+          highlights: "昭和古民家包廂氛圍！油花豐腴的北海道黑毛和牛在特製甘甜壽喜燒醬汁中輕涮，裹上金黃濃厚蛋液入口即化。",
+          image_url: "", notes: "行程最後一晚的豪華和牛饗宴！",
+          checklist: [{ text: "享用黑毛和牛壽喜燒大餐", done: false }]
+        },
+        {
+          id: "d10_5", day: 10, time: "20:00 - 21:30", category: "景點",
+          title: "函館蔦屋書店（巨型室內壁爐夜讀・雜貨伴手禮）",
+          location_query: "Hakodate Tsutaya Books",
+          transport: "計程車前往函館蔦屋書店",
+          hours_cost: "09:00 - 22:00｜免費參觀",
+          highlights: "北日本最具設計感的大型生活美學書店！挑高木質書牆旁燃燒著溫暖的巨型室內壁爐，捧杯熱咖啡挑選設計雜貨與明信片。",
+          image_url: "", notes: "回飯店後完成行李最後打包與退稅單確認。",
+          checklist: [{ text: "在蔦屋書店巨型壁爐旁小憩", done: false }, { text: "完成所有戰利品裝箱打包", done: false }]
+        },
+
+        // --- DAY 11 ---
+        {
+          id: "d11_1", day: 11, time: "07:15 - 07:50", category: "住宿",
+          title: "頂樓露天海景風呂「灯の湯」晨湯賞函館港日出",
+          location_query: "Tokyu STAY Hakodate Asaichi",
+          transport: "飯店頂樓大浴場",
+          hours_cost: "房客免費",
+          highlights: "在北海道的最後一個清晨，泡在熱呼呼的露天海景溫泉裡，看著金色朝陽從函館港灣與摩周丸後方緩緩升起。",
+          image_url: "", notes: "泡完湯回房整理隨身行李辦理退房。",
+          checklist: [{ text: "泡晨湯看函館港灣日出", done: false }]
+        },
+        {
+          id: "d11_2", day: 11, time: "08:00 - 09:00", category: "餐廳",
+          title: "十字屋珈琲 Jujiya Coffee（昭和復古手沖咖啡＆厚切吐司）",
+          location_query: "Jujiya Coffee Hakodate",
+          transport: "函館朝市旁步行 3 分鐘",
+          hours_cost: "08:00 - 17:00｜約 ¥900",
+          highlights: "函館老字號自家烘焙咖啡館，在懷舊木質空間裡品嚐職人手沖咖啡與金黃酥脆厚切奶油吐司。",
+          image_url: "", notes: "享用完畢回飯店領取寄放行李前往車站前巴士站。",
+          checklist: [{ text: "享用老店手沖咖啡與厚切吐司", done: false }]
+        },
+        {
+          id: "d11_3", day: 11, time: "09:10 - 09:40", category: "交通",
+          title: "函館帝產巴士 ➔ 函館機場 (HKD)",
+          location_query: "Hakodate Airport",
+          transport: "JR 函館站前 11 號巴士站牌搭乘「函館帝產機場接駁巴士」（約 20 分鐘）",
+          hours_cost: "車資 ¥700（支援交通卡）",
+          highlights: "巴士穿梭於純白雪景街道，僅需 20 分鐘即可輕鬆抵達函館機場，完全不必長途拉車。",
+          image_url: "", notes: "提前 2.5 小時抵達機場辦理托運。",
+          checklist: [{ text: "搭乘帝產巴士抵達函館機場", done: false }]
+        },
+        {
+          id: "d11_4", day: 11, time: "10:30 - 11:45", category: "餐廳",
+          title: "函館機場 2F「美鈴咖啡 MISUZU Cafe」＆ Snaffle's 伴手禮",
+          location_query: "Hakodate Airport",
+          transport: "函館機場國內線航廈 2F",
+          hours_cost: "約 ¥1,500",
+          highlights: "北海道最古老咖啡烘焙名店（1932年創業）！登機前來杯炭燒咖啡、咖啡霜淇淋與熱壓三明治，並掃貨函館必買「Snaffle's 輕乳酪起司歐姆蕾」。",
+          image_url: "", notes: "Snaffle's 起司歐姆蕾需冷藏，建議出境前或免稅店購買保冷袋。",
+          checklist: [{ text: "美鈴咖啡喝炭燒咖啡＆吃咖啡霜淇淋", done: false }, { text: "購買 Snaffle's 起司歐姆蕾伴手禮", done: false }]
+        },
+        {
+          id: "d11_5", day: 11, time: "12:20", category: "交通",
+          title: "台灣虎航 IT237 函館 (HKD) ➔ 桃園機場（滿載回憶歸國）",
+          location_query: "Taiwan Taoyuan International Airport",
+          transport: "函館機場國際線登機門搭乘台灣虎航 IT237 返台",
+          hours_cost: "12:20 起飛",
+          highlights: "從覆滿白雪的函館跑道起飛衝向湛藍冬空，帶著滿滿美食回憶與相機美照平安返抵台灣！",
+          image_url: "", notes: "一路順風，期待下一趟北海道之旅！",
+          checklist: [{ text: "確認隨身行李與護照、戰利品無遺漏", done: false }]
+        }
+      ]
+    };
+
+    const STATE = {
+      activeTab: "overview",        // "overview" | 1..11
+      selectedCategory: "全部",     // "全部" | "景點" | "餐廳" | "交通" | "住宿"
+      regionFilter: "all",          // "all" | "sapporo" | "central" | "south"
+      overviewLayout: "cards",      // "cards" | "table"
+      isEditMode: false,
+      firebaseConnected: false,
+      currentUser: null,
+      tripData: null
+    };
+
+    /**
+     * =========================================================================
+     * 模組 2: FIREBASE_DATA_LAYER（Google 驗證 + 雲端雙向同步 + LocalStorage 備援層）
+     * =========================================================================
+     */
+    const FirebaseDataLayer = {
+      app: null,
+      db: null,
+      auth: null,
+      provider: null,
+      docRef: null,
+      unsubscribe: null,
+      sdkInitialized: false,
+
+      initLocal() {
+        const cached = localStorage.getItem(STORAGE_KEY_DATA);
+        if (cached) {
+          try {
+            STATE.tripData = JSON.parse(cached);
+          } catch (e) {
+            STATE.tripData = structuredClone(DEFAULT_TRIP_DATA);
+          }
+        } else {
+          STATE.tripData = structuredClone(DEFAULT_TRIP_DATA);
+          localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(STATE.tripData));
+        }
+        UI_VIEW.renderAll();
+      },
+
+      initFirebase() {
+        if (this.sdkInitialized || !window.__FirebaseSDK) return;
+        this.sdkInitialized = true;
+
+        try {
+          const {
+            initializeApp, getFirestore, doc,
+            getAuth, GoogleAuthProvider, onAuthStateChanged
+          } = window.__FirebaseSDK;
+
+          this.app = initializeApp(FIREBASE_CONFIG);
+          this.db = getFirestore(this.app);
+          this.auth = getAuth(this.app);
+          this.provider = new GoogleAuthProvider();
+          this.docRef = doc(this.db, "travel_books", "hokkaido_2026_winter");
+
+          // 監聽 Google 登入狀態（登入一次後瀏覽器會自動記住）
+          onAuthStateChanged(this.auth, (user) => {
+            STATE.currentUser = user || null;
+            if (user) {
+              this.subscribeFirestore();
+            } else {
+              if (this.unsubscribe) {
+                this.unsubscribe();
+                this.unsubscribe = null;
+              }
+              STATE.firebaseConnected = false;
+              UI_VIEW.updateSyncBadge();
+            }
+          });
+        } catch (err) {
+          console.error("Firebase 初始化失敗：", err);
+          STATE.firebaseConnected = false;
+          UI_VIEW.updateSyncBadge();
+        }
+      },
+
+      subscribeFirestore() {
+        if (!this.docRef || !window.__FirebaseSDK) return;
+        const { onSnapshot } = window.__FirebaseSDK;
+
+        if (this.unsubscribe) this.unsubscribe();
+        this.unsubscribe = onSnapshot(this.docRef, (snap) => {
+          STATE.firebaseConnected = true;
+          if (snap.exists()) {
+            STATE.tripData = snap.data();
+            localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(STATE.tripData));
+            UI_VIEW.renderAll();
+          } else {
+            // 雲端尚無資料時，將本地預設 11 天完整行程初始化寫入 Firestore
+            this.persist(STATE.tripData, true);
+          }
+          UI_VIEW.updateSyncBadge();
+        }, (err) => {
+          console.warn("Firestore 權限或連線異常：", err);
+          STATE.firebaseConnected = false;
+          UI_VIEW.updateSyncBadge();
+          if (err.code === "permission-denied") {
+            UI_VIEW.showToast("⚠️ 此 Google 帳號未在 Firestore 允許名單內");
+          }
+        });
+      },
+
+      async persist(newData, silent = false) {
+        STATE.tripData = newData;
+        localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(newData));
+        UI_VIEW.renderAll();
+
+        if (STATE.firebaseConnected && STATE.currentUser && this.docRef && window.__FirebaseSDK) {
+          try {
+            const { setDoc } = window.__FirebaseSDK;
+            await setDoc(this.docRef, newData);
+            if (!silent) UI_VIEW.showToast("☁️ 已即時同步至雲端與本地");
+          } catch (e) {
+            console.error("雲端寫入失敗：", e);
+            if (!silent) UI_VIEW.showToast("💾 已儲存至本機（雲端寫入受限）");
+          }
+        } else {
+          if (!silent) UI_VIEW.showToast("💾 已儲存至本機（登入 Google 可同步雲端）");
+        }
+      }
+    };
+    window.FirebaseDataLayer = FirebaseDataLayer;
+
+    /**
+     * =========================================================================
+     * 模組 3: CONTROLLER（核心業務邏輯與使用者互動控制層）
+     * =========================================================================
+     */
+    const Controller = {
+      async signInGoogle() {
+        if (!FirebaseDataLayer.auth || !window.__FirebaseSDK) {
+          alert("Firebase 模組尚未載入完成，請確認是透過本機伺服器 (Live Server) 或網址開啟頁面。");
+          return;
+        }
+        try {
+          const { signInWithPopup } = window.__FirebaseSDK;
+          const result = await signInWithPopup(FirebaseDataLayer.auth, FirebaseDataLayer.provider);
+          UI_VIEW.showToast(`👋 歡迎回來，${result.user.email}`);
+          this.closeDataModal();
+        } catch (err) {
+          console.error("Google 登入失敗：", err);
+          if (err.code !== "auth/popup-closed-by-user") {
+            alert("登入失敗：" + err.message);
+          }
+        }
+      },
+
+      async signOutGoogle() {
+        if (!FirebaseDataLayer.auth || !window.__FirebaseSDK) return;
+        try {
+          const { signOut } = window.__FirebaseSDK;
+          await signOut(FirebaseDataLayer.auth);
+          UI_VIEW.showToast("已登出 Google 帳號");
+          this.closeDataModal();
+        } catch (err) {
+          console.error("登出失敗：", err);
+        }
+      },
+
+      switchTab(tab) {
+        STATE.activeTab = tab;
+        STATE.selectedCategory = "全部";
+        UI_VIEW.renderAll();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      },
+
+      setCategory(cat) {
+        STATE.selectedCategory = cat;
+        UI_VIEW.renderAll();
+      },
+
+      setRegionFilter(region) {
+        STATE.regionFilter = region;
+        UI_VIEW.renderAll();
+      },
+
+      setOverviewLayout(layout) {
+        STATE.overviewLayout = layout;
+        UI_VIEW.renderAll();
+      },
+
+      toggleEditMode() {
+        STATE.isEditMode = !STATE.isEditMode;
+        UI_VIEW.renderAll();
+        UI_VIEW.showToast(STATE.isEditMode ? "✏️ 已進入編輯模式" : "📖 已切換為純淨閱讀模式");
+      },
+
+      toggleChecklist(itemId, checkIdx) {
+        const cloned = structuredClone(STATE.tripData);
+        const item = cloned.itinerary_items.find(i => i.id === itemId);
+        if (item && item.checklist && item.checklist[checkIdx]) {
+          item.checklist[checkIdx].done = !item.checklist[checkIdx].done;
+          FirebaseDataLayer.persist(cloned, true);
+        }
+      },
+
+      // --- 行程節點 CRUD ---
+      openItemModal(itemId = null) {
+        const modal = document.getElementById("itemModal");
+        const daySelect = document.getElementById("editItemDay");
+        daySelect.innerHTML = Array.from({ length: 11 }, (_, idx) => {
+          const d = idx + 1;
+          return `<option value="${d}">Day ${d} (${STATE.tripData.days_overview[idx].date})</option>`;
+        }).join("");
+
+        const preview = document.getElementById("editImagePreview");
+        if (itemId) {
+          const item = STATE.tripData.itinerary_items.find(i => i.id === itemId);
+          document.getElementById("itemModalTitle").textContent = "編輯行程節點";
+          document.getElementById("editItemId").value = item.id;
+          daySelect.value = item.day;
+          document.getElementById("editItemTime").value = item.time;
+          document.getElementById("editItemCategory").value = item.category;
+          document.getElementById("editItemTitle").value = item.title;
+          document.getElementById("editItemMap").value = item.location_query || "";
+          document.getElementById("editItemHoursCost").value = item.hours_cost || "";
+          document.getElementById("editItemTransport").value = item.transport || "";
+          document.getElementById("editItemHighlights").value = item.highlights || "";
+          document.getElementById("editItemImageUrl").value = item.image_url || "";
+          document.getElementById("editItemNotes").value = item.notes || "";
+          document.getElementById("editItemChecklist").value = (item.checklist || []).map(c => c.text).join("\n");
+          if (item.image_url) {
+            preview.src = item.image_url;
+            preview.classList.remove("hidden");
+          } else {
+            preview.classList.add("hidden");
+          }
+        } else {
+          document.getElementById("itemModalTitle").textContent = "新增行程節點";
+          document.getElementById("itemForm").reset();
+          document.getElementById("editItemId").value = "";
+          daySelect.value = typeof STATE.activeTab === "number" ? STATE.activeTab : 1;
+          preview.classList.add("hidden");
+        }
+        modal.classList.remove("hidden");
+      },
+
+      closeItemModal() {
+        document.getElementById("itemModal").classList.add("hidden");
+      },
+
+      handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const maxW = 800;
+            const scale = img.width > maxW ? maxW / img.width : 1;
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
+            document.getElementById("editItemImageUrl").value = dataUrl;
+            const preview = document.getElementById("editImagePreview");
+            preview.src = dataUrl;
+            preview.classList.remove("hidden");
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      },
+
+      handleSaveItem(event) {
+        event.preventDefault();
+        const id = document.getElementById("editItemId").value;
+        const day = parseInt(document.getElementById("editItemDay").value, 10);
+        const time = document.getElementById("editItemTime").value.trim();
+        const category = document.getElementById("editItemCategory").value;
+        const title = document.getElementById("editItemTitle").value.trim();
+        const location_query = document.getElementById("editItemMap").value.trim() || title;
+        const hours_cost = document.getElementById("editItemHoursCost").value.trim();
+        const transport = document.getElementById("editItemTransport").value.trim();
+        const highlights = document.getElementById("editItemHighlights").value.trim();
+        const image_url = document.getElementById("editItemImageUrl").value.trim();
+        const notes = document.getElementById("editItemNotes").value.trim();
+        const rawChecklist = document.getElementById("editItemChecklist").value
+          .split("\n").map(s => s.trim()).filter(Boolean);
+
+        const cloned = structuredClone(STATE.tripData);
+        if (id) {
+          const idx = cloned.itinerary_items.findIndex(i => i.id === id);
+          if (idx !== -1) {
+            const oldChecks = cloned.itinerary_items[idx].checklist || [];
+            const checklist = rawChecklist.map(txt => {
+              const found = oldChecks.find(c => c.text === txt);
+              return { text: txt, done: found ? found.done : false };
+            });
+            cloned.itinerary_items[idx] = {
+              ...cloned.itinerary_items[idx],
+              day, time, category, title, location_query, hours_cost, transport, highlights, image_url, notes, checklist
+            };
+          }
+        } else {
+          cloned.itinerary_items.push({
+            id: "item_" + Date.now(),
+            day, time, category, title, location_query, hours_cost, transport, highlights, image_url, notes,
+            checklist: rawChecklist.map(text => ({ text, done: false }))
+          });
+        }
+
+        this.closeItemModal();
+        FirebaseDataLayer.persist(cloned);
+      },
+
+      deleteItem(itemId) {
+        if (!confirm("確定要刪除此行程節點嗎？")) return;
+        const cloned = structuredClone(STATE.tripData);
+        cloned.itinerary_items = cloned.itinerary_items.filter(i => i.id !== itemId);
+        FirebaseDataLayer.persist(cloned);
+      },
+
+      moveItem(itemId, direction) {
+        const cloned = structuredClone(STATE.tripData);
+        const target = cloned.itinerary_items.find(i => i.id === itemId);
+        if (!target) return;
+        const sameDayItems = cloned.itinerary_items.filter(i => i.day === target.day);
+        const localIdx = sameDayItems.findIndex(i => i.id === itemId);
+        const swapLocalIdx = localIdx + direction;
+        if (swapLocalIdx < 0 || swapLocalIdx >= sameDayItems.length) return;
+
+        const globalIdxA = cloned.itinerary_items.findIndex(i => i.id === sameDayItems[localIdx].id);
+        const globalIdxB = cloned.itinerary_items.findIndex(i => i.id === sameDayItems[swapLocalIdx].id);
+        [cloned.itinerary_items[globalIdxA], cloned.itinerary_items[globalIdxB]] =
+          [cloned.itinerary_items[globalIdxB], cloned.itinerary_items[globalIdxA]];
+
+        FirebaseDataLayer.persist(cloned);
+      },
+
+      // --- 編輯第一頁「每日大景點＋三餐重點整理」 ---
+      openOverviewModal(dayNum) {
+        const ov = STATE.tripData.days_overview.find(d => d.day === dayNum);
+        if (!ov) return;
+        document.getElementById("overviewModalTitle").textContent = `編輯 Day ${ov.day} (${ov.date}) 重點整理`;
+        document.getElementById("editOvDay").value = ov.day;
+        document.getElementById("editOvTheme").value = ov.theme;
+        document.getElementById("editOvHighlights").value = ov.highlights.join("、");
+        document.getElementById("editOvBreakfast").value = ov.meals.breakfast;
+        document.getElementById("editOvLunch").value = ov.meals.lunch;
+        document.getElementById("editOvDinner").value = ov.meals.dinner;
+        document.getElementById("editOvHotel").value = ov.hotel;
+        document.getElementById("overviewEditModal").classList.remove("hidden");
+      },
+
+      closeOverviewModal() {
+        document.getElementById("overviewEditModal").classList.add("hidden");
+      },
+
+      handleSaveOverview(event) {
+        event.preventDefault();
+        const dayNum = parseInt(document.getElementById("editOvDay").value, 10);
+        const cloned = structuredClone(STATE.tripData);
+        const ov = cloned.days_overview.find(d => d.day === dayNum);
+        if (ov) {
+          ov.theme = document.getElementById("editOvTheme").value.trim();
+          ov.highlights = document.getElementById("editOvHighlights").value.split(/[、,，]/).map(s => s.trim()).filter(Boolean);
+          ov.meals.breakfast = document.getElementById("editOvBreakfast").value.trim();
+          ov.meals.lunch = document.getElementById("editOvLunch").value.trim();
+          ov.meals.dinner = document.getElementById("editOvDinner").value.trim();
+          ov.hotel = document.getElementById("editOvHotel").value.trim();
+        }
+        this.closeOverviewModal();
+        FirebaseDataLayer.persist(cloned);
+      },
+
+      // --- 備份匯出 / 匯入 / 雲端帳號狀態 ---
+      openDataModal() {
+        UI_VIEW.updateSyncBadge();
+        document.getElementById("dataModal").classList.remove("hidden");
+      },
+
+      closeDataModal() {
+        document.getElementById("dataModal").classList.add("hidden");
+      },
+
+      exportJSON() {
+        const blob = new Blob([JSON.stringify(STATE.tripData, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Hokkaido_2026_11Days_Guidebook.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        UI_VIEW.showToast("⬇️ 已匯出完整行程 JSON 備份檔");
+      },
+
+      importJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const parsed = JSON.parse(e.target.result);
+            if (!parsed.days_overview || !parsed.itinerary_items) throw new Error("格式不符");
+            this.closeDataModal();
+            FirebaseDataLayer.persist(parsed);
+            UI_VIEW.showToast("⬆️ 成功匯入行程資料！");
+          } catch (err) {
+            alert("匯入失敗：請確認選擇的是本旅遊書匯出的 .json 檔案。");
+          }
+        };
+        reader.readAsText(file);
+      },
+
+      resetDefaultData() {
+        if (!confirm("確定要還原為預設的 2026 北海道 11 天完整行程嗎？（自訂修改將被覆蓋）")) return;
+        this.closeDataModal();
+        FirebaseDataLayer.persist(structuredClone(DEFAULT_TRIP_DATA));
+        UI_VIEW.showToast("🔄 已還原預設 11 天完整行程");
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 模組 4: UI_VIEW（日系繪本風畫面渲染層）
+     * =========================================================================
+     */
+    const UI_VIEW = {
+      renderAll() {
+        this.renderHeaderControls();
+        this.renderDayTabs();
+        this.updateSyncBadge();
+
+        const main = document.getElementById("appMain");
+        if (STATE.activeTab === "overview") {
+          main.innerHTML = this.renderOverviewPage();
+        } else {
+          main.innerHTML = this.renderDayPage(STATE.activeTab);
+        }
+      },
+
+      renderHeaderControls() {
+        const btn = document.getElementById("modeToggleBtn");
+        const icon = document.getElementById("modeIcon");
+        const label = document.getElementById("modeLabel");
+        const banner = document.getElementById("editModeBanner");
+
+        if (STATE.isEditMode) {
+          btn.className = "text-xs sm:text-sm px-3.5 py-1.5 rounded-lg font-medium transition shadow-sm flex items-center gap-1.5 bg-terracotta text-white hover:opacity-95";
+          icon.textContent = "✏️";
+          label.textContent = "編輯模式";
+          banner.classList.remove("hidden");
+        } else {
+          btn.className = "text-xs sm:text-sm px-3.5 py-1.5 rounded-lg font-medium transition shadow-sm flex items-center gap-1.5 bg-indigoHok text-white hover:opacity-95";
+          icon.textContent = "📖";
+          label.textContent = "閱讀模式";
+          banner.classList.add("hidden");
+        }
+      },
+
+      updateSyncBadge() {
+        const badge = document.getElementById("syncStatusBadge");
+        const modalStatus = document.getElementById("modalAuthStatusText");
+        const modalLoginBtn = document.getElementById("modalLoginBtn");
+        const modalLogoutBtn = document.getElementById("modalLogoutBtn");
+
+        if (STATE.currentUser && STATE.firebaseConnected) {
+          const shortName = STATE.currentUser.email.split("@")[0];
+          badge.innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-medium text-pine">雲端同步 (${shortName})</span>
+          `;
+          if (modalStatus) {
+            modalStatus.innerHTML = `✅ 目前已登入 <strong>${STATE.currentUser.email}</strong>，雲端資料庫已連線，任何修改皆會即時同步。`;
+            modalLoginBtn.classList.add("hidden");
+            modalLogoutBtn.classList.remove("hidden");
+          }
+        } else if (STATE.currentUser && !STATE.firebaseConnected) {
+          badge.innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span class="text-terracotta font-medium">無同步權限</span>
+            <button onclick="Controller.signOutGoogle()" class="underline ml-1 text-inkLight hover:text-ink">登出</button>
+          `;
+          if (modalStatus) {
+            modalStatus.innerHTML = `⚠️ 目前登入的 <strong>${STATE.currentUser.email}</strong> 不在 Firestore 允許清單中，請切換為已授權的 Gmail 帳號。`;
+            modalLoginBtn.classList.remove("hidden");
+            modalLogoutBtn.classList.remove("hidden");
+          }
+        } else {
+          badge.innerHTML = `
+            <button onclick="Controller.signInGoogle()" class="inline-flex items-center gap-1 font-bold text-indigoHok hover:text-terracotta transition">
+              🔑 Google 登入同步
+            </button>
+          `;
+          if (modalStatus) {
+            modalStatus.textContent = "尚未登入 Google 帳號（目前為本機儲存）。登入已授權的 Gmail 後即可與旅伴雙向即時同步。";
+            modalLoginBtn.classList.remove("hidden");
+            modalLogoutBtn.classList.add("hidden");
+          }
+        }
+      },
+
+      renderDayTabs() {
+        const container = document.getElementById("dayTabsContainer");
+        const isOv = STATE.activeTab === "overview";
+        let html = `
+          <button onclick="Controller.switchTab('overview')"
+            class="shrink-0 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 ${
+              isOv ? "bg-indigoHok text-white shadow-sm" : "bg-white text-indigoHok hover:bg-iceblue border border-borderWashi"
+            }">
+            🗺️ 總覽｜行程重點整理
+          </button>
+        `;
+
+        STATE.tripData.days_overview.forEach(d => {
+          const active = STATE.activeTab === d.day;
+          html += `
+            <button onclick="Controller.switchTab(${d.day})"
+              class="shrink-0 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition ${
+                active ? "bg-indigoHok text-white font-bold shadow-sm" : "bg-white/80 text-ink hover:bg-white border border-borderWashi"
+              }">
+              Day ${d.day} <span class="text-[11px] opacity-80">${d.date.split(" ")[0]}</span>
+            </button>
+          `;
+        });
+        container.innerHTML = html;
+      },
+
+      // 手繪水彩風格北海道路線總覽 SVG 插畫地圖
+      renderHokkaidoRouteMapSVG() {
+        return `
+          <div class="relative overflow-hidden rounded-2xl border border-borderWashi bg-gradient-to-br from-[#EDF4FA] via-[#FAF6EE] to-[#F7ECE6] p-4 sm:p-6 shadow-soft mb-6">
+            <div class="flex flex-col lg:flex-row items-center gap-6">
+              <!-- 左側標題與六大樞紐導覽 -->
+              <div class="lg:w-5/12 space-y-3">
+                <span class="inline-block px-3 py-1 rounded-full bg-indigoHok/10 text-indigoHok text-xs font-bold tracking-wider">
+                  HOKKAIDO EARLY WINTER STORYBOOK
+                </span>
+                <h2 class="font-serif font-bold text-xl sm:text-2xl text-indigoHok leading-snug">
+                  ❄️ 2026 初冬北海道<br/>11天10夜深度漫旅全覽
+                </h2>
+                <p class="text-xs sm:text-sm text-inkLight leading-relaxed">
+                  2026.11.28 (六) 桃園出發 ➔ 12.08 (二) 函館歸國。<br/>
+                  集結雪地神社、小樽青之運河、美瑛日落粉紅雪、洞爺湖無邊際露天風呂與函館海上聖誕煙火的冬日繪本之旅。
+                </p>
+                <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
+                  <div class="bg-white/85 p-2.5 rounded-xl border border-borderWashi">
+                    <span class="text-terracotta font-bold">✈️ 去程 IT234</span>
+                    <div class="text-ink mt-0.5">11/28 桃園T1 ➔ 新千歲</div>
+                  </div>
+                  <div class="bg-white/85 p-2.5 rounded-xl border border-borderWashi">
+                    <span class="text-indigoHok font-bold">✈️ 回程 IT237</span>
+                    <div class="text-ink mt-0.5">12/08 函館HKD ➔ 桃園</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 右側水彩繪本風六大目的地路線圖 -->
+              <div class="lg:w-7/12 w-full bg-white/75 rounded-xl border border-borderWashi p-3">
+                <svg viewBox="0 0 640 270" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="hokkaidoLand" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#FFFFFF"/>
+                      <stop offset="100%" stop-color="#F2EFE7"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- 柔和北海道島嶼輪廓剪影 -->
+                  <path d="M 330 25 L 430 65 L 555 85 L 535 145 L 460 165 L 415 215 L 335 185 L 265 190 L 210 235 L 155 255 L 130 225 L 175 180 L 185 135 L 245 115 L 295 70 Z"
+                    fill="url(#hokkaidoLand)" stroke="#C9C0B1" stroke-width="2" />
+                  <!-- 裝飾雪花與松樹 -->
+                  <text x="470" y="62" font-size="16" opacity="0.5">❄️</text>
+                  <text x="115" y="130" font-size="15" opacity="0.5">❄️</text>
+                  <text x="515" y="185" font-size="18" opacity="0.6">🌲</text>
+                  <text x="275" y="55" font-size="16" opacity="0.6">🌲</text>
+
+                  <!-- 串聯六大樞紐的虛線路徑 -->
+                  <path d="M 310 158 L 265 130 L 220 112 L 365 95 L 235 178 L 165 232"
+                    fill="none" stroke="#C85A32" stroke-width="2.5" class="dashed-route" />
+
+                  <!-- 樞紐 1: 新千歲機場 (CTS) -->
+                  <g class="cursor-pointer" onclick="Controller.switchTab(1)">
+                    <circle cx="310" cy="158" r="8" fill="#C85A32" />
+                    <rect x="322" y="143" width="118" height="34" rx="8" fill="#FFFFFF" stroke="#E0D9CC"/>
+                    <text x="330" y="158" font-size="11" font-weight="bold" fill="#1E3A5F">1. 新千歲機場 CTS</text>
+                    <text x="330" y="171" font-size="9.5" fill="#5C6470">玉米麵包・一幻拉麵</text>
+                  </g>
+
+                  <!-- 樞紐 2: 札幌 (Day 1-3, 6) -->
+                  <g class="cursor-pointer" onclick="Controller.switchTab(2)">
+                    <circle cx="265" cy="130" r="8" fill="#1E3A5F" />
+                    <rect x="255" y="82" width="102" height="36" rx="8" fill="#1E3A5F"/>
+                    <text x="263" y="98" font-size="11" font-weight="bold" fill="#FFFFFF">2. 札幌 Sapporo</text>
+                    <text x="263" y="111" font-size="9.5" fill="#E6EEF5">Day 1-3, 6｜燈樹節・神宮</text>
+                  </g>
+
+                  <!-- 樞紐 3: 小樽 (Day 4) -->
+                  <g class="cursor-pointer" onclick="Controller.switchTab(4)">
+                    <circle cx="220" cy="112" r="8" fill="#2D5A43" />
+                    <rect x="92" y="92" width="118" height="36" rx="8" fill="#FFFFFF" stroke="#2D5A43"/>
+                    <text x="100" y="108" font-size="11" font-weight="bold" fill="#2D5A43">3. 小樽 Otaru (D4)</text>
+                    <text x="100" y="121" font-size="9.5" fill="#5C6470">青之運河・三角市場</text>
+                  </g>
+
+                  <!-- 樞紐 4: 美瑛・富良野 (Day 5) -->
+                  <g class="cursor-pointer" onclick="Controller.switchTab(5)">
+                    <circle cx="365" cy="95" r="8" fill="#C85A32" />
+                    <rect x="378" y="75" width="136" height="36" rx="8" fill="#FFFFFF" stroke="#C85A32"/>
+                    <text x="386" y="91" font-size="11" font-weight="bold" fill="#C85A32">4. 美瑛・富良野 (D5)</text>
+                    <text x="386" y="104" font-size="9.5" fill="#5C6470">日落粉紅雪・精靈露台</text>
+                  </g>
+
+                  <!-- 樞紐 5: 洞爺湖 (Day 7) -->
+                  <g class="cursor-pointer" onclick="Controller.switchTab(7)">
+                    <circle cx="235" cy="178" r="8" fill="#1E3A5F" />
+                    <rect x="247" y="182" width="122" height="36" rx="8" fill="#FFFFFF" stroke="#1E3A5F"/>
+                    <text x="255" y="198" font-size="11" font-weight="bold" fill="#1E3A5F">5. 洞爺湖 (D7)</text>
+                    <text x="255" y="211" font-size="9.5" fill="#5C6470">有珠山・無邊際露天湯</text>
+                  </g>
+
+                  <!-- 樞紐 6: 函館 (Day 8-11) -->
+                  <g class="cursor-pointer" onclick="Controller.switchTab(8)">
+                    <circle cx="165" cy="232" r="9" fill="#C85A32" />
+                    <rect x="180" y="224" width="144" height="36" rx="8" fill="#C85A32"/>
+                    <text x="188" y="240" font-size="11" font-weight="bold" fill="#FFFFFF">6. 函館 Hakodate</text>
+                    <text x="188" y="253" font-size="9.5" fill="#FAF8F5">Day 8-11｜海上煙火・五稜郭</text>
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      // 第一頁：整個行程的重點整理（每日大景點 + 三餐 + 住宿）
+      renderOverviewPage() {
+        const filteredDays = STATE.tripData.days_overview.filter(d => {
+          if (STATE.regionFilter === "all") return true;
+          return d.region === STATE.regionFilter;
+        });
+
+        const regionPills = [
+          { key: "all", label: "全部 11 天" },
+          { key: "sapporo", label: "札幌市區 (D1-3, 6)" },
+          { key: "central", label: "小樽・美瑛富良野 (D4-5)" },
+          { key: "south", label: "洞爺湖・函館 (D7-11)" }
+        ];
+
+        return `
+          ${this.renderHokkaidoRouteMapSVG()}
+
+          <!-- 篩選與檢視切換工具列 -->
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-xs font-bold text-indigoHok mr-1">📍 區域篩選：</span>
+              ${regionPills.map(p => `
+                <button onclick="Controller.setRegionFilter('${p.key}')"
+                  class="px-3 py-1 rounded-full text-xs font-medium transition ${
+                    STATE.regionFilter === p.key
+                      ? "bg-indigoHok text-white"
+                      : "bg-white text-inkLight hover:text-indigoHok border border-borderWashi"
+                  }">
+                  ${p.label}
+                </button>
+              `).join("")}
+            </div>
+
+            <div class="flex items-center gap-1.5 bg-linen p-1 rounded-xl border border-borderWashi text-xs">
+              <button onclick="Controller.setOverviewLayout('cards')"
+                class="px-3 py-1 rounded-lg font-medium transition ${STATE.overviewLayout === 'cards' ? 'bg-white text-indigoHok shadow-sm' : 'text-inkLight'}">
+                🗂️ 雜誌卡片
+              </button>
+              <button onclick="Controller.setOverviewLayout('table')"
+                class="px-3 py-1 rounded-lg font-medium transition ${STATE.overviewLayout === 'table' ? 'bg-white text-indigoHok shadow-sm' : 'text-inkLight'}">
+                📋 一覽總表
+              </button>
+            </div>
+          </div>
+
+          ${STATE.overviewLayout === "table" ? this.renderOverviewTable(filteredDays) : this.renderOverviewCards(filteredDays)}
+        `;
+      },
+
+      renderOverviewCards(days) {
+        return `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${days.map(d => `
+              <article class="watercolor-card rounded-2xl p-4 sm:p-5 shadow-card hover:shadow-soft transition flex flex-col justify-between">
+                <div>
+                  <!-- 卡片頂部：天數 + 日期 + 進入詳情按鈕 -->
+                  <div class="flex items-start justify-between gap-2 pb-3 border-b border-borderWashi">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-lg bg-indigoHok text-white text-xs font-bold">Day ${d.day}</span>
+                        <span class="text-xs font-medium text-terracotta">${d.date}</span>
+                      </div>
+                      <h3 class="font-serif font-bold text-base sm:text-lg text-indigoHok mt-1.5">${d.theme}</h3>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      ${STATE.isEditMode ? `
+                        <button onclick="Controller.openOverviewModal(${d.day})" class="px-2.5 py-1 rounded-lg bg-terracotta/10 text-terracotta text-xs font-medium hover:bg-terracotta/20">
+                          ✏️ 編輯
+                        </button>
+                      ` : ""}
+                      <button onclick="Controller.switchTab(${d.day})" class="px-3 py-1 rounded-lg bg-iceblue text-indigoHok text-xs font-bold hover:bg-indigoHok hover:text-white transition">
+                        詳細時間軸 ➔
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 每日大景點 -->
+                  <div class="mt-3">
+                    <div class="text-xs font-bold text-pine mb-1.5">🏔️ 每日大景點</div>
+                    <div class="flex flex-wrap gap-1.5">
+                      ${d.highlights.map(h => `
+                        <span class="px-2.5 py-1 rounded-lg bg-pine/10 text-pine text-xs font-medium">${h}</span>
+                      `).join("")}
+                    </div>
+                  </div>
+
+                  <!-- 每日三餐重點 -->
+                  <div class="mt-3.5 bg-mist/70 rounded-xl p-3 border border-borderWashi/80 space-y-1.5 text-xs">
+                    <div class="flex gap-2">
+                      <span class="shrink-0 font-bold text-amber-700 w-11">🌅 早餐</span>
+                      <span class="text-ink leading-relaxed">${d.meals.breakfast}</span>
+                    </div>
+                    <div class="flex gap-2 border-t border-borderWashi/60 pt-1.5">
+                      <span class="shrink-0 font-bold text-terracotta w-11">☀️ 午餐</span>
+                      <span class="text-ink leading-relaxed">${d.meals.lunch}</span>
+                    </div>
+                    <div class="flex gap-2 border-t border-borderWashi/60 pt-1.5">
+                      <span class="shrink-0 font-bold text-indigoHok w-11">🌙 晚餐</span>
+                      <span class="text-ink leading-relaxed">${d.meals.dinner}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 住宿 -->
+                <div class="mt-3 pt-2.5 border-t border-borderWashi flex items-center gap-2 text-xs text-inkLight">
+                  <span>🏨</span>
+                  <span class="font-medium text-ink">${d.hotel}</span>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        `;
+      },
+
+      renderOverviewTable(days) {
+        return `
+          <div class="bg-white rounded-2xl border border-borderWashi shadow-card overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[820px] text-xs">
+              <thead>
+                <tr class="bg-linen text-indigoHok border-b border-borderWashi">
+                  <th class="p-3 font-bold w-28">天數 / 日期</th>
+                  <th class="p-3 font-bold w-48">🏔️ 每日大景點</th>
+                  <th class="p-3 font-bold">🌅 早餐</th>
+                  <th class="p-3 font-bold">☀️ 午餐</th>
+                  <th class="p-3 font-bold">🌙 晚餐</th>
+                  <th class="p-3 font-bold w-44">🏨 住宿</th>
+                  <th class="p-3 font-bold w-24 text-center">操作</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-borderWashi">
+                ${days.map(d => `
+                  <tr class="hover:bg-washi transition">
+                    <td class="p-3 align-top">
+                      <div class="font-bold text-indigoHok">Day ${d.day}</div>
+                      <div class="text-terracotta text-[11px]">${d.date}</div>
+                      <div class="font-medium text-ink mt-1">${d.theme}</div>
+                    </td>
+                    <td class="p-3 align-top text-pine font-medium leading-relaxed">
+                      ${d.highlights.join("・")}
+                    </td>
+                    <td class="p-3 align-top text-ink leading-relaxed">${d.meals.breakfast}</td>
+                    <td class="p-3 align-top text-ink leading-relaxed">${d.meals.lunch}</td>
+                    <td class="p-3 align-top text-ink leading-relaxed">${d.meals.dinner}</td>
+                    <td class="p-3 align-top text-inkLight">${d.hotel}</td>
+                    <td class="p-3 align-top text-center space-y-1.5">
+                      <button onclick="Controller.switchTab(${d.day})" class="w-full px-2.5 py-1 rounded-lg bg-iceblue text-indigoHok font-bold hover:bg-indigoHok hover:text-white transition">
+                        查看詳情
+                      </button>
+                      ${STATE.isEditMode ? `
+                        <button onclick="Controller.openOverviewModal(${d.day})" class="w-full px-2.5 py-1 rounded-lg bg-terracotta/10 text-terracotta font-medium">
+                          ✏️ 編輯
+                        </button>
+                      ` : ""}
+                    </td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+      },
+
+      // 單日詳細旅遊書時間軸頁面 (Day 1 ~ Day 11)
+      renderDayPage(dayNum) {
+        const ov = STATE.tripData.days_overview.find(d => d.day === dayNum);
+        const allItems = STATE.tripData.itinerary_items.filter(i => i.day === dayNum);
+        const filteredItems = STATE.selectedCategory === "全部"
+          ? allItems
+          : allItems.filter(i => i.category === STATE.selectedCategory);
+
+        const categories = [
+          { key: "全部", icon: "✨" },
+          { key: "景點", icon: "🏔️" },
+          { key: "餐廳", icon: "🍽️" },
+          { key: "交通", icon: "🚃" },
+          { key: "住宿", icon: "🏨" }
+        ];
+
+        return `
+          <!-- 當日繪本橫幅與重點摘要卡 -->
+          <section class="rounded-2xl border border-borderWashi bg-gradient-to-r from-[#EEF4FA] via-[#FAF8F5] to-[#F7EDE6] p-5 sm:p-6 shadow-soft mb-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="px-3 py-1 rounded-full bg-indigoHok text-white text-xs font-bold">DAY ${ov.day}</span>
+                  <span class="text-sm font-bold text-terracotta">${ov.date}</span>
+                </div>
+                <h2 class="font-serif font-bold text-xl sm:text-2xl text-indigoHok mt-2">${ov.theme}</h2>
+              </div>
+
+              <div class="flex items-center gap-2">
+                ${dayNum > 1 ? `
+                  <button onclick="Controller.switchTab(${dayNum - 1})" class="px-3 py-1.5 rounded-xl bg-white border border-borderWashi text-xs font-medium text-indigoHok hover:bg-iceblue">
+                    ◀ Day ${dayNum - 1}
+                  </button>
+                ` : ""}
+                ${dayNum < 11 ? `
+                  <button onclick="Controller.switchTab(${dayNum + 1})" class="px-3 py-1.5 rounded-xl bg-white border border-borderWashi text-xs font-medium text-indigoHok hover:bg-iceblue">
+                    Day ${dayNum + 1} ▶
+                  </button>
+                ` : ""}
+              </div>
+            </div>
+
+            <!-- 當日三餐與住宿速覽條 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 mt-4 text-xs">
+              <div class="bg-white/90 p-3 rounded-xl border border-borderWashi">
+                <div class="font-bold text-amber-700 mb-0.5">🌅 早餐</div>
+                <div class="text-ink leading-snug">${ov.meals.breakfast}</div>
+              </div>
+              <div class="bg-white/90 p-3 rounded-xl border border-borderWashi">
+                <div class="font-bold text-terracotta mb-0.5">☀️ 午餐</div>
+                <div class="text-ink leading-snug">${ov.meals.lunch}</div>
+              </div>
+              <div class="bg-white/90 p-3 rounded-xl border border-borderWashi">
+                <div class="font-bold text-indigoHok mb-0.5">🌙 晚餐</div>
+                <div class="text-ink leading-snug">${ov.meals.dinner}</div>
+              </div>
+              <div class="bg-white/90 p-3 rounded-xl border border-borderWashi">
+                <div class="font-bold text-pine mb-0.5">🏨 住宿</div>
+                <div class="text-ink leading-snug">${ov.hotel}</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 分類快速篩選 & 編輯模式新增按鈕 -->
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div class="flex flex-wrap items-center gap-1.5">
+              ${categories.map(c => `
+                <button onclick="Controller.setCategory('${c.key}')"
+                  class="px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium transition ${
+                    STATE.selectedCategory === c.key
+                      ? "bg-indigoHok text-white shadow-sm"
+                      : "bg-white text-inkLight hover:text-indigoHok border border-borderWashi"
+                  }">
+                  ${c.icon} ${c.key}
+                </button>
+              `).join("")}
+            </div>
+
+            ${STATE.isEditMode ? `
+              <button onclick="Controller.openItemModal()" class="px-4 py-2 rounded-xl bg-terracotta text-white text-xs sm:text-sm font-bold shadow-sm hover:opacity-95 flex items-center gap-1.5">
+                ➕ 新增 Day ${dayNum} 行程節點
+              </button>
+            ` : ""}
+          </div>
+
+          <!-- 時間軸卡片列表 -->
+          <div class="relative pl-4 sm:pl-6 border-l-2 border-dashed border-terracotta/40 space-y-5">
+            ${filteredItems.length === 0 ? `
+              <div class="bg-white rounded-2xl p-8 text-center border border-borderWashi text-sm text-inkLight">
+                此分類下尚無行程節點，可切換至「全部」或開啟編輯模式新增。
+              </div>
+            ` : filteredItems.map((item, idx) => this.renderItineraryCard(item, idx, filteredItems.length)).join("")}
+          </div>
+        `;
+      },
+
+      renderItineraryCard(item, idx, total) {
+        const badgeStyle = {
+          "景點": "bg-pine/15 text-pine border-pine/30",
+          "餐廳": "bg-terracotta/15 text-terracotta border-terracotta/30",
+          "交通": "bg-indigoHok/15 text-indigoHok border-indigoHok/30",
+          "住宿": "bg-amber-500/15 text-amber-800 border-amber-500/30"
+        }[item.category] || "bg-linen text-ink";
+
+        const catIcon = { "景點": "🏔️", "餐廳": "🍽️", "交通": "🚃", "住宿": "🏨" }[item.category] || "📍";
+        const mapUrl = item.location_query.startsWith("http")
+          ? item.location_query
+          : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location_query + " Hokkaido")}`;
+
+        return `
+          <div class="relative watercolor-card rounded-2xl p-4 sm:p-5 shadow-card hover:shadow-soft transition">
+            <!-- 時間軸圓點 -->
+            <span class="absolute -left-[23px] sm:-left-[31px] top-6 w-3.5 h-3.5 rounded-full bg-terracotta ring-4 ring-washi"></span>
+
+            <!-- 頂部：時間 + 類別 + Google Maps 導航 + 編輯操作 -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-borderWashi">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-1 rounded-lg bg-indigoHok text-white text-xs font-bold tracking-wide">
+                  🕒 ${item.time}
+                </span>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${badgeStyle}">
+                  ${catIcon} ${item.category}
+                </span>
+                ${item.hours_cost ? `<span class="text-xs text-inkLight">${item.hours_cost}</span>` : ""}
+              </div>
+
+              <div class="flex items-center gap-1.5">
+                <a href="${mapUrl}" target="_blank" rel="noopener noreferrer"
+                  class="px-3 py-1 rounded-lg bg-iceblue hover:bg-indigoHok text-indigoHok hover:text-white text-xs font-bold transition flex items-center gap-1">
+                  📍 Google Maps 導航
+                </a>
+
+                ${STATE.isEditMode ? `
+                  <div class="flex items-center gap-1 ml-1 pl-2 border-l border-borderWashi">
+                    <button onclick="Controller.moveItem('${item.id}', -1)" ${idx === 0 ? "disabled" : ""} class="p-1.5 rounded bg-linen hover:bg-iceblue disabled:opacity-30 text-xs" title="上移">↑</button>
+                    <button onclick="Controller.moveItem('${item.id}', 1)" ${idx === total - 1 ? "disabled" : ""} class="p-1.5 rounded bg-linen hover:bg-iceblue disabled:opacity-30 text-xs" title="下移">↓</button>
+                    <button onclick="Controller.openItemModal('${item.id}')" class="px-2 py-1 rounded bg-terracotta/15 text-terracotta text-xs font-bold hover:bg-terracotta hover:text-white">編輯</button>
+                    <button onclick="Controller.deleteItem('${item.id}')" class="px-2 py-1 rounded bg-red-50 text-red-600 text-xs font-bold hover:bg-red-600 hover:text-white">刪除</button>
+                  </div>
+                ` : ""}
+              </div>
+            </div>
+
+            <!-- 標題與主內容 -->
+            <div class="mt-3 grid grid-cols-1 ${item.image_url ? "md:grid-cols-3 gap-4" : ""}">
+              <div class="${item.image_url ? "md:col-span-2" : ""} space-y-2.5">
+                <h3 class="font-serif font-bold text-base sm:text-lg text-indigoHok">${item.title}</h3>
+
+                ${item.transport ? `
+                  <div class="flex items-start gap-2 text-xs sm:text-sm bg-iceblue/60 px-3 py-2 rounded-xl text-indigoHok">
+                    <span class="shrink-0 font-bold">🚃 交通：</span>
+                    <span>${item.transport}</span>
+                  </div>
+                ` : ""}
+
+                ${item.highlights ? `
+                  <p class="text-xs sm:text-sm text-ink leading-relaxed">
+                    <span class="font-bold text-pine">✨ 亮點特色：</span>${item.highlights}
+                  </p>
+                ` : ""}
+
+                ${item.notes ? `
+                  <div class="text-xs bg-mist px-3 py-2 rounded-xl border border-borderWashi text-inkLight">
+                    <span class="font-bold text-terracotta">📝 備註提醒：</span>${item.notes}
+                  </div>
+                ` : ""}
+
+                <!-- 互動式勾選清單（閱讀模式與編輯模式皆可直接點擊勾選） -->
+                ${item.checklist && item.checklist.length > 0 ? `
+                  <div class="pt-1">
+                    <div class="text-[11px] font-bold text-inkLight mb-1.5">☑️ 旅途小任務（點擊可打勾）：</div>
+                    <div class="flex flex-wrap gap-2">
+                      ${item.checklist.map((chk, cIdx) => `
+                        <label class="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs transition ${
+                          chk.done
+                            ? "bg-pine/10 border-pine/30 text-pine line-through opacity-80"
+                            : "bg-white border-borderWashi text-ink hover:border-indigoHok"
+                        }">
+                          <input type="checkbox" ${chk.done ? "checked" : ""} onchange="Controller.toggleChecklist('${item.id}', ${cIdx})" class="accent-pine rounded" />
+                          <span>${chk.text}</span>
+                        </label>
+                      `).join("")}
+                    </div>
+                  </div>
+                ` : ""}
+              </div>
+
+              ${item.image_url ? `
+                <div class="md:col-span-1">
+                  <img src="${item.image_url}" alt="${item.title}" class="w-full h-44 object-cover rounded-xl border border-borderWashi shadow-sm" />
+                </div>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      },
+
+      showToast(msg) {
+        const toast = document.getElementById("toast");
+        document.getElementById("toastMsg").textContent = msg;
+        toast.classList.remove("translate-y-16", "opacity-0");
+        setTimeout(() => {
+          toast.classList.add("translate-y-16", "opacity-0");
+        }, 2600);
+      }
+    };
+
+    // 啟動應用（先渲染本地資料，待 Firebase Module 載入後自動接手驗證與雲端同步）
+    window.addEventListener("DOMContentLoaded", () => {
+      FirebaseDataLayer.initLocal();
+      if (window.__FirebaseSDK) {
+        FirebaseDataLayer.initFirebase();
+      }
+    });
+  </script>
+</body>
+</html>
