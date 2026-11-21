@@ -77,13 +77,21 @@
         </div>
       </div>
 
-      <!-- 右側操作列：同步狀態 & 雙模式切換 -->
-      <div class="flex items-center gap-2">
-        <span id="syncStatusBadge" class="hidden sm:inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-linen text-inkLight border border-borderWashi">
-          <span class="w-2 h-2 rounded-full bg-pine"></span> 本地離線儲存中
+      <!-- 右側操作列：雲端同步狀態 & Google 驗證 & 雙模式切換 -->
+      <div class="flex flex-wrap items-center gap-2">
+        <span id="syncStatusBadge" class="hidden md:inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-linen text-inkLight border border-borderWashi">
+          <span class="w-2 h-2 rounded-full bg-amber-500"></span> 等待 Google 驗證
         </span>
 
-        <button onclick="Controller.openDataModal()" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-linen hover:bg-iceblue text-indigoHok font-medium transition border border-borderWashi" title="備份匯出或設定雲端同步">
+        <!-- Google 登入 / 已登入使用者按鈕區 -->
+        <div id="authHeaderSlot" class="flex items-center">
+          <button onclick="Controller.signInWithGoogle()" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-white hover:bg-iceblue text-ink font-medium transition border border-borderWashi shadow-xs flex items-center gap-1.5">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            <span>Google 登入</span>
+          </button>
+        </div>
+
+        <button onclick="Controller.openDataModal()" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-linen hover:bg-iceblue text-indigoHok font-medium transition border border-borderWashi" title="備份匯出與雲端帳號設定">
           ⚙️ 備份/雲端
         </button>
 
@@ -104,7 +112,7 @@
 
   <!-- 編輯模式提示橫幅 -->
   <div id="editModeBanner" class="hidden bg-terracotta/10 border-b border-terracotta/30 text-terracotta text-xs sm:text-sm py-2 px-4 text-center font-medium">
-    ✏️ 目前為「編輯模式」：可新增、修改、上下排序行程，或直接編輯第一頁的每日大景點與三餐整理（所有變更皆會自動儲存）。
+    ✏️ 目前為「編輯模式」：可新增、修改、上下排序行程，或直接編輯第一頁的每日大景點與三餐整理（登入 Google 後即自動雲端即時同步）。
   </div>
 
   <!-- 主內容渲染容器 -->
@@ -244,19 +252,66 @@
     </div>
   </div>
 
-  <!-- 彈窗 3：資料備份匯出/匯入 & Firebase 雲端同步設定 Modal -->
+  <!-- 彈窗 3：Firebase 雲端帳號驗證 & 離線 JSON 備份 Modal -->
   <div id="dataModal" class="fixed inset-0 z-50 hidden bg-ink/40 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-washi border border-borderWashi rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl space-y-5 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-borderWashi">
-        <h3 class="font-serif font-bold text-lg text-indigoHok">⚙️ 旅伴分享備份 & 雲端同步</h3>
+        <h3 class="font-serif font-bold text-lg text-indigoHok">☁️ 雲端驗證同步 & 旅伴備份</h3>
         <button onclick="Controller.closeDataModal()" class="text-inkLight hover:text-ink text-xl leading-none">&times;</button>
+      </div>
+
+      <!-- Firebase & Google Auth 狀態卡片 -->
+      <div class="bg-iceblue/50 p-4 rounded-xl border border-indigoHok/20 space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="font-bold text-sm text-indigoHok">🔐 Firebase 專案與 Google 帳號驗證</h4>
+          <span class="px-2 py-0.5 rounded-full bg-white text-[11px] font-mono text-indigoHok border border-borderWashi">hokkaido-5f175</span>
+        </div>
+
+        <div id="modalAuthStatusBox" class="bg-white p-3.5 rounded-xl border border-borderWashi">
+          <!-- 由 UI_VIEW.renderModalAuthBox() 動態渲染 -->
+        </div>
+
+        <div class="text-[11px] text-inkLight leading-relaxed">
+          Firestore 同步路徑：<code id="modalDocPathLabel" class="bg-white px-1.5 py-0.5 rounded border border-borderWashi text-indigoHok font-mono">trips / hokkaido-plan</code>
+        </div>
+
+        <!-- 進階設定（預設收合，避免干擾日常使用） -->
+        <details class="pt-1">
+          <summary class="text-xs font-medium text-indigoHok cursor-pointer select-none hover:underline">
+            🛠️ 進階：調整 Firestore 文件路徑或自訂 Firebase Config
+          </summary>
+          <div class="mt-2.5 space-y-2.5 pt-2 border-t border-borderWashi/80">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] text-inkLight mb-1">Collection 名稱</label>
+                <input type="text" id="inputFsCollection" value="trips" class="w-full rounded-lg border border-borderWashi bg-white px-2.5 py-1.5 text-xs font-mono" />
+              </div>
+              <div>
+                <label class="block text-[11px] text-inkLight mb-1">Document ID</label>
+                <input type="text" id="inputFsDocId" value="hokkaido-plan" class="w-full rounded-lg border border-borderWashi bg-white px-2.5 py-1.5 text-xs font-mono" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] text-inkLight mb-1">Firebase Config JSON（已內建 hokkaido-5f175）</label>
+              <textarea id="firebaseConfigInput" rows="4" class="w-full rounded-lg border border-borderWashi bg-white p-2 text-[11px] font-mono focus:outline-none focus:border-indigoHok"></textarea>
+            </div>
+            <div class="flex flex-wrap justify-between gap-2">
+              <button onclick="Controller.forcePushToCloud()" class="px-3 py-1.5 rounded-lg bg-terracotta/15 text-terracotta text-xs font-bold hover:bg-terracotta hover:text-white transition">
+                ⬆️ 將本機行程覆寫上傳至雲端
+              </button>
+              <button onclick="Controller.saveFirebaseSettings()" class="px-3.5 py-1.5 rounded-lg bg-pine text-white text-xs font-bold hover:opacity-95">
+                套用並重新連線
+              </button>
+            </div>
+          </div>
+        </details>
       </div>
 
       <!-- 本地 JSON 匯出匯入 -->
       <div class="bg-white p-4 rounded-xl border border-borderWashi space-y-3">
         <h4 class="font-bold text-sm text-indigoHok">📦 離線備份與分享給旅伴（JSON 檔）</h4>
         <p class="text-xs text-inkLight leading-relaxed">
-          出發前可將整理好的 11 天完整行程匯出成 JSON 檔案傳給旅伴，旅伴打開本網頁後點選「匯入行程」即可載入最新功課。
+          可將整理好的 11 天完整行程匯出成 JSON 檔案保存或傳給旅伴匯入，雙重保障不怕離線。
         </p>
         <div class="flex flex-wrap gap-2">
           <button onclick="Controller.exportJSON()" class="px-3.5 py-2 rounded-lg bg-indigoHok text-white text-xs font-medium hover:opacity-95">
@@ -268,20 +323,6 @@
           </label>
           <button onclick="Controller.resetDefaultData()" class="px-3.5 py-2 rounded-lg bg-terracotta/10 text-terracotta text-xs font-medium hover:bg-terracotta/20 ml-auto">
             🔄 還原預設 11 天行程
-          </button>
-        </div>
-      </div>
-
-      <!-- Firebase 雲端雙向同步設定 -->
-      <div class="bg-iceblue/50 p-4 rounded-xl border border-borderWashi space-y-2.5">
-        <h4 class="font-bold text-sm text-indigoHok">☁️ Firebase Firestore 即時雙向同步（選用）</h4>
-        <p class="text-xs text-inkLight leading-relaxed">
-          若希望與旅伴手機即時同步勾選清單與行程修改，請貼上您的 Firebase Web App <code class="bg-white px-1 rounded">firebaseConfig</code> JSON（留空則維持本地瀏覽器自動儲存）：
-        </p>
-        <textarea id="firebaseConfigInput" rows="4" placeholder='{"apiKey": "...", "authDomain": "...", "projectId": "..."}' class="w-full rounded-lg border border-borderWashi bg-white p-2.5 text-xs font-mono focus:outline-none focus:border-indigoHok"></textarea>
-        <div class="flex justify-end gap-2">
-          <button onclick="Controller.saveFirebaseConfig()" class="px-4 py-1.5 rounded-lg bg-pine text-white text-xs font-medium hover:opacity-95">
-            連線至雲端資料庫
           </button>
         </div>
       </div>
@@ -336,12 +377,17 @@
     </div>
   </div>
 
-  <!-- Firebase SDK (Modular v10 via CDN) -->
+  <!-- Firebase SDK (Modular v10 via CDN: App + Firestore + Auth) -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { initializeApp, getApps, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    window.__FirebaseSDK = { initializeApp, getFirestore, doc, onSnapshot, setDoc };
+    window.__FirebaseSDK = {
+      initializeApp, getApps, deleteApp,
+      getFirestore, doc, onSnapshot, setDoc,
+      getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+    };
     if (window.FirebaseDataLayer) {
       window.FirebaseDataLayer.init();
     }
@@ -350,20 +396,26 @@
   <script>
     /**
      * =========================================================================
-     * 模組 1: CONFIG_STATE（預設 11 天行程 + 完整 8 段交通攻略資料集）
+     * 模組 1: CONFIG_STATE（已補回 hokkaido-5f175 Firebase 設定 + 11天行程 + 8段交通）
      * =========================================================================
      */
     const DEFAULT_FIREBASE_CONFIG = {
-      apiKey: "",
-      authDomain: "",
-      projectId: "",
-      storageBucket: "",
-      messagingSenderId: "",
-      appId: ""
+      apiKey: "AIzaSyC5zfQhTCLX7zBLD0pk2RtN5k7pZbnnjuI",
+      authDomain: "hokkaido-5f175.firebaseapp.com",
+      projectId: "hokkaido-5f175",
+      storageBucket: "hokkaido-5f175.firebasestorage.app",
+      messagingSenderId: "289033463067",
+      appId: "1:289033463067:web:3b062171d9e55c23715fbe"
+    };
+
+    const DEFAULT_FS_PATH = {
+      collection: "trips",
+      docId: "hokkaido-plan"
     };
 
     const STORAGE_KEY_DATA = "hokkaido_2026_guidebook_data_v1";
-    const STORAGE_KEY_FB = "hokkaido_2026_firebase_cfg_v1";
+    const STORAGE_KEY_FB = "hokkaido_2026_firebase_cfg_v2";
+    const STORAGE_KEY_PATH = "hokkaido_2026_fs_path_v1";
 
     // 日文劃位小紙條（原封不動）
     const JP_RESERVATION_NOTE = `すみません、JR北海道レールパス（5日間用）の引き換えと、以下の指定席の予約（大人2名・隣同士の席）をお願いします。
@@ -375,7 +427,7 @@
 3. 12月4日 札幌 (10:56) → 洞爺 (12:50)｜特急北斗 10号（可能であれば進行方向左側 A・B席）
 4. 12月5日 洞爺 (12:50) → 函館 (14:40)｜特急北斗 10号（可能であれば進行方向左側 A・B席）`;
 
-    // 完整 8 段交通時刻表資料集（完全依據提供資料，無省略或編造）
+    // 完整 8 段交通時刻表資料集
     const TRANSPORT_SEGMENTS = [
       {
         id: "seg_1",
@@ -1406,32 +1458,65 @@
       activeTab: "overview",        // "overview" | "transport" | 1..11
       transportSubTab: "timetable", // "timetable" | "pass" | "jpcard" | "snow"
       expandedTransportIds: new Set(),
-      selectedCategory: "全部",     // "全部" | "景點" | "餐廳" | "交通" | "住宿"
-      regionFilter: "all",          // "all" | "sapporo" | "central" | "south"
-      overviewLayout: "cards",      // "cards" | "table"
+      selectedCategory: "全部",
+      regionFilter: "all",
+      overviewLayout: "cards",
       isEditMode: false,
-      firebaseConnected: false,
+      currentUser: null,            // Firebase Auth User
+      firebaseConnected: false,     // Firestore onSnapshot 正常監聽中
+      cloudError: "",               // 權限或連線錯誤訊息
+      fsPath: { ...DEFAULT_FS_PATH },
       tripData: null
     };
 
     /**
      * =========================================================================
-     * 模組 2: FIREBASE_DATA_LAYER（雲端雙向同步 + LocalStorage 離線備援層）
+     * 模組 2: FIREBASE_DATA_LAYER（Firebase Auth Google 驗證 + Firestore 雙向同步）
      * =========================================================================
      */
     const FirebaseDataLayer = {
+      app: null,
+      auth: null,
       db: null,
       docRef: null,
-      unsubscribe: null,
+      unsubscribeDoc: null,
+      unsubscribeAuth: null,
+      activeConfig: null,
 
       ensureSchema(data) {
-        if (!data.transport_pass_checks || !Array.isArray(data.transport_pass_checks)) {
-          data.transport_pass_checks = [false, false, false];
+        const base = structuredClone(DEFAULT_TRIP_DATA);
+        if (!data || typeof data !== "object") return base;
+        return {
+          days_overview: Array.isArray(data.days_overview) && data.days_overview.length > 0 ? data.days_overview : base.days_overview,
+          itinerary_items: Array.isArray(data.itinerary_items) && data.itinerary_items.length > 0 ? data.itinerary_items : base.itinerary_items,
+          transport_pass_checks: Array.isArray(data.transport_pass_checks) && data.transport_pass_checks.length === 3 ? data.transport_pass_checks : [false, false, false]
+        };
+      },
+
+      getEffectiveConfig() {
+        const savedCfg = localStorage.getItem(STORAGE_KEY_FB);
+        if (savedCfg) {
+          try {
+            const parsed = JSON.parse(savedCfg);
+            if (parsed && parsed.apiKey && parsed.projectId) return parsed;
+          } catch (e) {}
         }
-        return data;
+        return DEFAULT_FIREBASE_CONFIG;
+      },
+
+      getEffectivePath() {
+        const savedPath = localStorage.getItem(STORAGE_KEY_PATH);
+        if (savedPath) {
+          try {
+            const parsed = JSON.parse(savedPath);
+            if (parsed && parsed.collection && parsed.docId) return parsed;
+          } catch (e) {}
+        }
+        return { ...DEFAULT_FS_PATH };
       },
 
       init() {
+        // 1. 先從 localStorage 載入，保證離線或開啟瞬間立即可讀
         const cached = localStorage.getItem(STORAGE_KEY_DATA);
         if (cached) {
           try {
@@ -1444,46 +1529,118 @@
           localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(STATE.tripData));
         }
 
-        let cfg = DEFAULT_FIREBASE_CONFIG;
-        const savedCfg = localStorage.getItem(STORAGE_KEY_FB);
-        if (savedCfg) {
-          try { cfg = JSON.parse(savedCfg); } catch (e) {}
-        }
+        STATE.fsPath = this.getEffectivePath();
+        this.activeConfig = this.getEffectiveConfig();
 
-        if (cfg && cfg.apiKey && cfg.projectId && window.__FirebaseSDK) {
-          this.connect(cfg);
-        } else {
-          UI_VIEW.renderAll();
+        UI_VIEW.renderAll();
+
+        if (window.__FirebaseSDK) {
+          this.initFirebaseServices(this.activeConfig);
         }
       },
 
-      connect(cfg) {
+      async initFirebaseServices(cfg) {
         try {
-          const { initializeApp, getFirestore, doc, onSnapshot } = window.__FirebaseSDK;
-          const app = initializeApp(cfg, "HokkaidoGuide_" + Date.now());
-          this.db = getFirestore(app);
-          this.docRef = doc(this.db, "travel_books", "hokkaido_2026_winter");
+          const {
+            initializeApp, getApps, deleteApp,
+            getFirestore, getAuth, onAuthStateChanged
+          } = window.__FirebaseSDK;
 
-          if (this.unsubscribe) this.unsubscribe();
-          this.unsubscribe = onSnapshot(this.docRef, (snap) => {
-            STATE.firebaseConnected = true;
-            if (snap.exists()) {
-              STATE.tripData = this.ensureSchema(snap.data());
-              localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(STATE.tripData));
-              UI_VIEW.renderAll();
+          // 清除舊監聽器與實例（重連時防重複）
+          if (this.unsubscribeDoc) { this.unsubscribeDoc(); this.unsubscribeDoc = null; }
+          if (this.unsubscribeAuth) { this.unsubscribeAuth(); this.unsubscribeAuth = null; }
+          for (const existing of getApps()) {
+            try { await deleteApp(existing); } catch (e) {}
+          }
+
+          this.app = initializeApp(cfg);
+          this.auth = getAuth(this.app);
+          this.db = getFirestore(this.app);
+
+          // 監聽 Google 登入狀態（onAuthStateChanged）
+          this.unsubscribeAuth = onAuthStateChanged(this.auth, (user) => {
+            STATE.currentUser = user || null;
+            STATE.cloudError = "";
+            if (user) {
+              this.attachFirestoreListener();
             } else {
-              this.persist(STATE.tripData, true);
+              if (this.unsubscribeDoc) { this.unsubscribeDoc(); this.unsubscribeDoc = null; }
+              STATE.firebaseConnected = false;
+              UI_VIEW.renderAuthUI();
             }
-            UI_VIEW.updateSyncBadge();
-          }, (err) => {
-            console.warn("Firebase 連線異常，維持本地模式：", err);
-            STATE.firebaseConnected = false;
-            UI_VIEW.updateSyncBadge();
           });
         } catch (err) {
           console.error("Firebase 初始化失敗：", err);
+          STATE.cloudError = "Firebase 初始化失敗，目前維持本機模式。";
           STATE.firebaseConnected = false;
-          UI_VIEW.renderAll();
+          UI_VIEW.renderAuthUI();
+        }
+      },
+
+      attachFirestoreListener() {
+        if (!this.db || !window.__FirebaseSDK) return;
+        const { doc, onSnapshot } = window.__FirebaseSDK;
+        if (this.unsubscribeDoc) { this.unsubscribeDoc(); this.unsubscribeDoc = null; }
+
+        this.docRef = doc(this.db, STATE.fsPath.collection, STATE.fsPath.docId);
+
+        this.unsubscribeDoc = onSnapshot(this.docRef, (snap) => {
+          STATE.firebaseConnected = true;
+          STATE.cloudError = "";
+          if (snap.exists()) {
+            const remoteData = snap.data();
+            // 相容合併雲端資料，確保不遺失新結構欄位
+            STATE.tripData = this.ensureSchema(remoteData);
+            localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(STATE.tripData));
+            UI_VIEW.renderAll();
+          } else {
+            // 雲端文件尚未建立時，自動初始化上傳目前 11 天資料
+            this.persist(STATE.tripData, true);
+          }
+          UI_VIEW.renderAuthUI();
+        }, (err) => {
+          console.warn("Firestore 監聽權限或連線錯誤：", err);
+          STATE.firebaseConnected = false;
+          if (err.code === "permission-denied") {
+            STATE.cloudError = "此 Google 帳號尚無 Firestore 讀寫權限（請確認安全規則白名單）";
+          } else {
+            STATE.cloudError = "雲端同步中斷，已自動切換本機暫存";
+          }
+          UI_VIEW.renderAuthUI();
+        });
+      },
+
+      async signInGoogle() {
+        if (!this.auth || !window.__FirebaseSDK) {
+          UI_VIEW.showToast("⚠️ Firebase SDK 尚未載入完成，請稍候重試");
+          return;
+        }
+        try {
+          const { GoogleAuthProvider, signInWithPopup } = window.__FirebaseSDK;
+          const provider = new GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: "select_account" });
+          const result = await signInWithPopup(this.auth, provider);
+          UI_VIEW.showToast(`✅ 歡迎回來，${result.user.displayName || result.user.email}！`);
+        } catch (err) {
+          console.error("Google 登入失敗：", err);
+          if (err.code === "auth/operation-not-supported-in-this-environment") {
+            alert("目前為本機檔案直接開啟（file://），瀏覽器安全規範禁止於此協定跳出 Google 登入視窗。\n\n請透過已授權的網址（如 GitHub Pages、Firebase Hosting 或本機 http://localhost）開啟即可正常使用 Google 登入與雲端同步；離線時仍可直接使用本機儲存！");
+          } else if (err.code === "auth/unauthorized-domain") {
+            alert(`目前網域 (${location.hostname}) 尚未加入 Firebase 授權網域。\n請前往 Firebase Console ➔ Authentication ➔ Settings ➔ Authorized domains 加入此網域。`);
+          } else if (err.code !== "auth/popup-closed-by-user") {
+            UI_VIEW.showToast(`❌ 登入失敗：${err.code || err.message}`);
+          }
+        }
+      },
+
+      async signOutGoogle() {
+        if (!this.auth || !window.__FirebaseSDK) return;
+        try {
+          const { signOut } = window.__FirebaseSDK;
+          await signOut(this.auth);
+          UI_VIEW.showToast("👋 已登出 Google 帳號（本機離線資料仍保留）");
+        } catch (err) {
+          UI_VIEW.showToast("❌ 登出發生錯誤");
         }
       },
 
@@ -1492,16 +1649,30 @@
         localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(STATE.tripData));
         UI_VIEW.renderAll();
 
-        if (STATE.firebaseConnected && this.docRef && window.__FirebaseSDK) {
+        if (STATE.currentUser && this.docRef && window.__FirebaseSDK) {
           try {
             const { setDoc } = window.__FirebaseSDK;
-            await setDoc(this.docRef, STATE.tripData);
-            if (!silent) UI_VIEW.showToast("☁️ 已即時同步至雲端與本地");
+            await setDoc(this.docRef, {
+              ...STATE.tripData,
+              updated_at: new Date().toISOString(),
+              updated_by: STATE.currentUser.email || STATE.currentUser.uid
+            }, { merge: true });
+            STATE.firebaseConnected = true;
+            STATE.cloudError = "";
+            UI_VIEW.renderAuthUI();
+            if (!silent) UI_VIEW.showToast("☁️ 已即時同步至 Firebase 雲端");
           } catch (e) {
-            if (!silent) UI_VIEW.showToast("💾 已儲存至本機（雲端同步失敗）");
+            console.error("Firestore 寫入失敗：", e);
+            if (e.code === "permission-denied") {
+              STATE.cloudError = "寫入遭拒：請確認您的 Google 信箱已加入 Firestore 規則";
+              if (!silent) UI_VIEW.showToast("⚠️ 本機已存，但雲端寫入權限不足");
+            } else {
+              if (!silent) UI_VIEW.showToast("💾 已儲存至本機（離線暫存）");
+            }
+            UI_VIEW.renderAuthUI();
           }
         } else {
-          if (!silent) UI_VIEW.showToast("💾 已自動儲存至本機");
+          if (!silent) UI_VIEW.showToast("💾 已儲存至本機（登入 Google 可同步雲端）");
         }
       }
     };
@@ -1513,6 +1684,14 @@
      * =========================================================================
      */
     const Controller = {
+      signInWithGoogle() {
+        FirebaseDataLayer.signInGoogle();
+      },
+
+      signOutGoogle() {
+        FirebaseDataLayer.signOutGoogle();
+      },
+
       switchTab(tab) {
         STATE.activeTab = tab;
         STATE.selectedCategory = "全部";
@@ -1775,8 +1954,11 @@
 
       // --- 備份匯出 / 匯入 / 雲端設定 ---
       openDataModal() {
-        const savedCfg = localStorage.getItem(STORAGE_KEY_FB);
-        if (savedCfg) document.getElementById("firebaseConfigInput").value = savedCfg;
+        document.getElementById("inputFsCollection").value = STATE.fsPath.collection;
+        document.getElementById("inputFsDocId").value = STATE.fsPath.docId;
+        document.getElementById("modalDocPathLabel").textContent = `${STATE.fsPath.collection} / ${STATE.fsPath.docId}`;
+        document.getElementById("firebaseConfigInput").value = JSON.stringify(FirebaseDataLayer.activeConfig, null, 2);
+        UI_VIEW.renderModalAuthBox();
         document.getElementById("dataModal").classList.remove("hidden");
       },
 
@@ -1820,38 +2002,45 @@
         UI_VIEW.showToast("🔄 已還原預設 11 天完整行程");
       },
 
-      saveFirebaseConfig() {
-        const raw = document.getElementById("firebaseConfigInput").value.trim();
-        if (!raw) {
-          localStorage.removeItem(STORAGE_KEY_FB);
-          STATE.firebaseConnected = false;
-          UI_VIEW.updateSyncBadge();
-          this.closeDataModal();
-          UI_VIEW.showToast("已切換回本地離線儲存模式");
+      forcePushToCloud() {
+        if (!STATE.currentUser) {
+          alert("請先登入 Google 帳號後再執行雲端上傳！");
           return;
         }
+        if (!confirm(`確定要將目前本機的完整 11 天行程覆寫上傳至雲端（${STATE.fsPath.collection}/${STATE.fsPath.docId}）嗎？`)) return;
+        FirebaseDataLayer.persist(STATE.tripData, false);
+      },
+
+      saveFirebaseSettings() {
+        const col = document.getElementById("inputFsCollection").value.trim() || "trips";
+        const docId = document.getElementById("inputFsDocId").value.trim() || "hokkaido-plan";
+        const raw = document.getElementById("firebaseConfigInput").value.trim();
+
         try {
-          const cfg = JSON.parse(raw);
+          const cfg = raw ? JSON.parse(raw) : DEFAULT_FIREBASE_CONFIG;
+          STATE.fsPath = { collection: col, docId };
+          localStorage.setItem(STORAGE_KEY_PATH, JSON.stringify(STATE.fsPath));
           localStorage.setItem(STORAGE_KEY_FB, JSON.stringify(cfg));
-          FirebaseDataLayer.connect(cfg);
-          this.closeDataModal();
-          UI_VIEW.showToast("☁️ 正在連線 Firebase 雲端資料庫...");
+          FirebaseDataLayer.activeConfig = cfg;
+          FirebaseDataLayer.initFirebaseServices(cfg);
+          document.getElementById("modalDocPathLabel").textContent = `${col} / ${docId}`;
+          UI_VIEW.showToast("☁️ 已更新 Firebase 設定並重新連線");
         } catch (e) {
-          alert("JSON 格式有誤，請貼上完整的 firebaseConfig JSON 物件。");
+          alert("Firebase Config JSON 格式有誤，請檢查括號與雙引號。");
         }
       }
     };
 
     /**
      * =========================================================================
-     * 模組 4: UI_VIEW（日系繪本風畫面渲染層：總覽 + 交通攻略 + 每日時間軸）
+     * 模組 4: UI_VIEW（日系繪本風畫面渲染層：Auth 狀態 + 總覽 + 交通攻略 + 每日時間軸）
      * =========================================================================
      */
     const UI_VIEW = {
       renderAll() {
         this.renderHeaderControls();
+        this.renderAuthUI();
         this.renderDayTabs();
-        this.updateSyncBadge();
 
         const main = document.getElementById("appMain");
         if (STATE.activeTab === "overview") {
@@ -1882,12 +2071,90 @@
         }
       },
 
-      updateSyncBadge() {
+      renderAuthUI() {
         const badge = document.getElementById("syncStatusBadge");
-        if (STATE.firebaseConnected) {
-          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Firebase 雲端即時同步`;
+        const slot = document.getElementById("authHeaderSlot");
+
+        // 1. 頂部同步狀態徽章
+        if (STATE.currentUser && STATE.firebaseConnected) {
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 雲端已同步 (hokkaido-5f175)`;
+          badge.className = "hidden md:inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-pine/10 text-pine font-medium border border-pine/30";
+        } else if (STATE.cloudError) {
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-terracotta"></span> 雲端權限受限（本機暫存）`;
+          badge.className = "hidden md:inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-terracotta/10 text-terracotta font-medium border border-terracotta/30";
+        } else if (STATE.currentUser) {
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> 雲端連線中...`;
+          badge.className = "hidden md:inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-linen text-inkLight border border-borderWashi";
         } else {
-          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-pine"></span> 本地離線儲存中`;
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-inkLight/60"></span> 本機離線（登入以同步）`;
+          badge.className = "hidden md:inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-linen text-inkLight border border-borderWashi";
+        }
+
+        // 2. 頂部 Google 帳號按鈕區
+        if (STATE.currentUser) {
+          const avatar = STATE.currentUser.photoURL
+            ? `<img src="${STATE.currentUser.photoURL}" alt="avatar" class="w-5 h-5 rounded-full border border-borderWashi" referrerpolicy="no-referrer" />`
+            : `<span class="w-5 h-5 rounded-full bg-indigoHok text-white text-[10px] flex items-center justify-center font-bold">${(STATE.currentUser.displayName || "G")[0]}</span>`;
+          slot.innerHTML = `
+            <button onclick="Controller.openDataModal()" class="text-xs px-2.5 py-1.5 rounded-lg bg-white hover:bg-iceblue text-indigoHok font-medium transition border border-borderWashi flex items-center gap-1.5" title="${STATE.currentUser.email}">
+              ${avatar}
+              <span class="max-w-[84px] truncate hidden sm:inline">${STATE.currentUser.displayName || "已登入"}</span>
+            </button>
+          `;
+        } else {
+          slot.innerHTML = `
+            <button onclick="Controller.signInWithGoogle()" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-white hover:bg-iceblue text-ink font-medium transition border border-borderWashi shadow-xs flex items-center gap-1.5">
+              <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              <span>Google 登入</span>
+            </button>
+          `;
+        }
+
+        this.renderModalAuthBox();
+      },
+
+      renderModalAuthBox() {
+        const box = document.getElementById("modalAuthStatusBox");
+        if (!box) return;
+
+        if (STATE.currentUser) {
+          const u = STATE.currentUser;
+          box.innerHTML = `
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                ${u.photoURL
+                  ? `<img src="${u.photoURL}" class="w-9 h-9 rounded-full border border-borderWashi shrink-0" referrerpolicy="no-referrer" />`
+                  : `<div class="w-9 h-9 rounded-full bg-indigoHok text-white flex items-center justify-center font-bold shrink-0">${(u.displayName || "U")[0]}</div>`
+                }
+                <div class="min-w-0">
+                  <div class="text-sm font-bold text-indigoHok truncate">${u.displayName || "Google 使用者"}</div>
+                  <div class="text-xs text-inkLight truncate">${u.email}</div>
+                </div>
+              </div>
+              <button onclick="Controller.signOutGoogle()" class="shrink-0 px-3 py-1.5 rounded-lg bg-linen hover:bg-terracotta/15 hover:text-terracotta text-xs font-bold text-ink transition">
+                登出帳號
+              </button>
+            </div>
+            <div class="mt-2.5 pt-2.5 border-t border-borderWashi text-xs ${STATE.cloudError ? "text-terracotta font-medium" : "text-pine font-medium"}">
+              ${STATE.cloudError
+                ? `⚠️ ${STATE.cloudError}`
+                : STATE.firebaseConnected
+                  ? "✅ 已通過 Google 驗證並啟用 Firestore 即時雙向同步"
+                  : "⏳ 正在建立 Firestore 雲端同步連線..."}
+            </div>
+          `;
+        } else {
+          box.innerHTML = `
+            <div class="space-y-2.5">
+              <p class="text-xs text-inkLight leading-relaxed">
+                已預設連結您的 <strong class="text-indigoHok">hokkaido-5f175</strong> Firebase 專案。點擊下方按鈕透過 Google 帳號登入，即可與旅伴即時同步行程與勾選清單：
+              </p>
+              <button onclick="Controller.signInWithGoogle()" class="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-washi border border-indigoHok/30 text-indigoHok text-sm font-bold transition shadow-xs flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                <span>使用 Google 帳號登入並開啟雲端同步</span>
+              </button>
+            </div>
+          `;
         }
       },
 
@@ -1930,7 +2197,7 @@
 
       /**
        * =====================================================================
-       * 新增獨立分頁：🚃 交通攻略（4 子分頁：時刻表 / Pass劃位 / 日文卡 / 雪季備案）
+       * 獨立分頁：🚃 交通攻略（4 子分頁：時刻表 / Pass劃位 / 日文卡 / 雪季備案）
        * =====================================================================
        */
       renderTransportPage() {
@@ -1948,7 +2215,6 @@
         else contentHtml = this.renderTransportSnowTips();
 
         return `
-          <!-- 交通攻略標題橫幅（維持原和紙繪本漸層配色） -->
           <section class="rounded-2xl border border-borderWashi bg-gradient-to-r from-[#EDF4FA] via-[#FAF8F5] to-[#F7EDE6] p-5 sm:p-6 shadow-soft mb-5">
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -1974,7 +2240,6 @@
               </div>
             </div>
 
-            <!-- 4 大子分頁導覽列 -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5">
               ${subTabs.map(t => {
                 const active = STATE.transportSubTab === t.key;
@@ -1996,12 +2261,10 @@
             </div>
           </section>
 
-          <!-- 子分頁主內容 -->
           <div class="max-w-4xl mx-auto">
             ${contentHtml}
           </div>
 
-          <!-- 手機版底部固定快捷導覽條（僅於「交通攻略」分頁且小螢幕顯示） -->
           <div class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-washi/95 backdrop-blur-md border-t border-borderWashi px-2 py-1.5 shadow-lg">
             <div class="grid grid-cols-4 gap-1">
               ${subTabs.map(t => {
@@ -2021,7 +2284,6 @@
         `;
       },
 
-      // 交通子分頁 1：8 段交通時刻表（Timeline 卡片流 + Accordion 備用班次）
       renderTransportTimetable() {
         const tagClasses = {
           pass: "bg-pine/15 text-pine border-pine/30",
@@ -2036,7 +2298,6 @@
             ${TRANSPORT_SEGMENTS.map(seg => {
               const isExpanded = STATE.expandedTransportIds.has(seg.id);
               const hasBackups = seg.backups && seg.backups.length > 0;
-
               const noteBoxClass = seg.noteType === "warning"
                 ? "bg-terracotta/10 border-terracotta/40 text-terracotta"
                 : seg.noteType === "scenic"
@@ -2045,10 +2306,8 @@
 
               return `
                 <article class="relative watercolor-card rounded-2xl p-4 sm:p-5 shadow-card hover:shadow-soft transition">
-                  <!-- 時間軸圓點 -->
                   <span class="absolute -left-[23px] sm:-left-[31px] top-6 w-3.5 h-3.5 rounded-full bg-indigoHok ring-4 ring-washi"></span>
 
-                  <!-- 頂部：編號 + 日期 + 路線標題 -->
                   <div class="flex flex-wrap items-start justify-between gap-2 pb-3 border-b border-borderWashi">
                     <div>
                       <div class="flex items-center gap-2">
@@ -2059,7 +2318,6 @@
                       <h3 class="font-serif font-bold text-lg sm:text-xl text-indigoHok mt-1.5">${seg.route}</h3>
                     </div>
 
-                    <!-- 狀態標籤列 -->
                     <div class="flex flex-wrap gap-1.5">
                       ${seg.tags.map(tg => `
                         <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${tagClasses[tg.tone] || tagClasses.neutral}">
@@ -2069,7 +2327,6 @@
                     </div>
                   </div>
 
-                  <!-- 目標班次高亮區塊 -->
                   <div class="mt-3.5">
                     ${seg.transferLegs ? `
                       <div class="space-y-2">
@@ -2094,14 +2351,12 @@
                     `}
                   </div>
 
-                  <!-- 特別提醒框 -->
                   ${seg.note ? `
                     <div class="mt-3 px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm leading-relaxed ${noteBoxClass}">
                       ${seg.noteType === "scenic" ? "🌊 景觀選座：" : seg.noteType === "warning" ? "" : "💡 搭乘提醒："}${seg.note}
                     </div>
                   ` : ""}
 
-                  <!-- 互動展開 Accordion：前後 2 班備用車次 -->
                   ${hasBackups ? `
                     <div class="mt-3.5 pt-3 border-t border-borderWashi">
                       <button onclick="Controller.toggleBackupAccordion('${seg.id}')"
@@ -2143,7 +2398,6 @@
         `;
       },
 
-      // 交通子分頁 2：JR 5 日周遊券精算儀表板 + 互動式 3 步驟 Check-list
       renderTransportPassGuide() {
         const checks = STATE.tripData.transport_pass_checks || [false, false, false];
         const doneCount = checks.filter(Boolean).length;
@@ -2192,7 +2446,6 @@
         ];
 
         return `
-          <!-- 省錢儀表板卡片 -->
           <section class="watercolor-card rounded-2xl p-5 sm:p-6 shadow-soft mb-6">
             <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-borderWashi">
               <div>
@@ -2204,7 +2457,6 @@
               </span>
             </div>
 
-            <!-- 價格視覺化條形對比 -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
               <div class="p-4 rounded-2xl bg-mist border border-borderWashi">
                 <div class="text-xs font-bold text-inkLight">單買總原價（12/1～12/5 共 6 趟）</div>
@@ -2232,7 +2484,6 @@
             </div>
           </section>
 
-          <!-- 互動式 3 步驟 Check-list -->
           <section class="watercolor-card rounded-2xl p-5 sm:p-6 shadow-card">
             <div class="flex items-center justify-between pb-3 border-b border-borderWashi">
               <div>
@@ -2269,11 +2520,9 @@
         `;
       },
 
-      // 交通子分頁 3：📱 給站務員看的「日文劃位小紙條」
       renderTransportJpCard() {
         return `
           <section class="bg-white rounded-2xl border-2 border-indigoHok shadow-soft overflow-hidden">
-            <!-- 頂部深靛藍標頭 -->
             <div class="bg-indigoHok text-white px-5 py-4 flex flex-wrap items-center justify-between gap-2">
               <div>
                 <div class="text-[11px] tracking-wider opacity-85 uppercase">Show to JR Staff at New Chitose Airport</div>
@@ -2291,7 +2540,6 @@
               </div>
             </div>
 
-            <!-- 高對比大字體展示卡片內容 -->
             <div class="p-5 sm:p-7 space-y-5">
               <div class="p-4 rounded-xl bg-washi border border-borderWashi">
                 <p class="text-base sm:text-xl font-bold text-ink leading-relaxed">
@@ -2306,7 +2554,6 @@
                 </div>
               </div>
 
-              <!-- 4 段指定席清晰大字列表 -->
               <div class="space-y-3 text-base sm:text-lg font-bold text-ink">
                 <div class="p-4 rounded-xl bg-washi border border-indigoHok/25 flex items-start gap-3">
                   <span class="shrink-0 w-7 h-7 rounded-full bg-indigoHok text-white text-sm flex items-center justify-center">1</span>
@@ -2343,7 +2590,6 @@
                 </div>
               </div>
 
-              <!-- 原文純文字檢視區（方便核對與一鍵複製） -->
               <div class="pt-4 border-t border-borderWashi">
                 <div class="text-xs font-bold text-inkLight mb-2">📄 原始全文（複製內容完全一致）：</div>
                 <pre class="whitespace-pre-wrap text-xs sm:text-sm bg-mist p-4 rounded-xl border border-borderWashi text-ink font-sans leading-relaxed select-all">${JP_RESERVATION_NOTE}</pre>
@@ -2353,11 +2599,9 @@
         `;
       },
 
-      // 交通子分頁 4：初冬乘車秘笈與大雪備案
       renderTransportSnowTips() {
         return `
           <div class="space-y-5">
-            <!-- 1. 景觀選座指南 -->
             <section class="watercolor-card rounded-2xl p-5 sm:p-6 shadow-card">
               <div class="flex items-center gap-2 pb-3 border-b border-borderWashi">
                 <span class="text-xl">🌊</span>
@@ -2381,7 +2625,6 @@
               </div>
             </section>
 
-            <!-- 2. 大行李放置技巧 -->
             <section class="watercolor-card rounded-2xl p-5 sm:p-6 shadow-card">
               <div class="flex items-center gap-2 pb-3 border-b border-borderWashi">
                 <span class="text-xl">🧳</span>
@@ -2392,7 +2635,6 @@
               </div>
             </section>
 
-            <!-- 3. 初冬風雪延誤與停駛備案 -->
             <section class="watercolor-card rounded-2xl p-5 sm:p-6 shadow-card border-terracotta/40">
               <div class="flex items-center gap-2 pb-3 border-b border-borderWashi">
                 <span class="text-xl">🌨️</span>
@@ -2456,7 +2698,6 @@
                 </button>
               </div>
 
-              <!-- 右側水彩繪本風六大目的地路線圖 -->
               <div class="lg:w-7/12 w-full bg-white/75 rounded-xl border border-borderWashi p-3">
                 <svg viewBox="0 0 640 270" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
                   <defs>
@@ -2517,7 +2758,6 @@
         `;
       },
 
-      // 第一頁：整個行程的重點整理（每日大景點 + 三餐 + 住宿）
       renderOverviewPage() {
         const filteredDays = STATE.tripData.days_overview.filter(d => {
           if (STATE.regionFilter === "all") return true;
@@ -2674,7 +2914,6 @@
         `;
       },
 
-      // 單日詳細旅遊書時間軸頁面 (Day 1 ~ Day 11)
       renderDayPage(dayNum) {
         const ov = STATE.tripData.days_overview.find(d => d.day === dayNum);
         const allItems = STATE.tripData.itinerary_items.filter(i => i.day === dayNum);
@@ -2869,7 +3108,7 @@
         toast.classList.remove("translate-y-16", "opacity-0");
         setTimeout(() => {
           toast.classList.add("translate-y-16", "opacity-0");
-        }, 2400);
+        }, 2600);
       }
     };
 
