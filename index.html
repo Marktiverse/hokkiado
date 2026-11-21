@@ -45,7 +45,6 @@
       background-image: radial-gradient(#E0D9CC 0.6px, transparent 0.6px);
       background-size: 24px 24px;
     }
-    /* 隱藏橫向捲軸但保留滑動功能 */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .watercolor-card {
@@ -61,7 +60,7 @@
     }
   </style>
 </head>
-<body class="font-sans antialiased selection:bg-iceblue selection:text-indigoHok pb-20">
+<body class="font-sans antialiased selection:bg-iceblue selection:text-indigoHok pb-24">
 
   <!-- 頂部固定導覽列 -->
   <header class="sticky top-0 z-40 bg-washi/95 backdrop-blur-md border-b border-borderWashi shadow-sm">
@@ -78,15 +77,13 @@
         </div>
       </div>
 
-      <!-- 右側操作列：Google 登入同步狀態 & 雙模式切換 -->
-      <div class="flex flex-wrap items-center gap-2">
-        <div id="syncStatusBadge" class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-linen text-inkLight border border-borderWashi">
-          <button onclick="Controller.signInGoogle()" class="inline-flex items-center gap-1 font-bold text-indigoHok hover:text-terracotta transition">
-            🔑 Google 登入同步
-          </button>
-        </div>
+      <!-- 右側操作列：同步狀態 & 雙模式切換 -->
+      <div class="flex items-center gap-2">
+        <span id="syncStatusBadge" class="hidden sm:inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-linen text-inkLight border border-borderWashi">
+          <span class="w-2 h-2 rounded-full bg-pine"></span> 本地離線儲存中
+        </span>
 
-        <button onclick="Controller.openDataModal()" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-linen hover:bg-iceblue text-indigoHok font-medium transition border border-borderWashi" title="備份匯出或檢視雲端狀態">
+        <button onclick="Controller.openDataModal()" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg bg-linen hover:bg-iceblue text-indigoHok font-medium transition border border-borderWashi" title="備份匯出或設定雲端同步">
           ⚙️ 備份/雲端
         </button>
 
@@ -97,10 +94,10 @@
       </div>
     </div>
 
-    <!-- 天數分頁導覽列（橫向滑動） -->
+    <!-- 主分頁導覽列（橫向滑動）：總覽 + 交通攻略 + Day 1 ~ Day 11 -->
     <nav class="bg-mist/80 border-t border-borderWashi">
       <div id="dayTabsContainer" class="max-w-6xl mx-auto px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-        <!-- 由 JS 動態渲染：總覽 + Day 1 ~ Day 11 -->
+        <!-- 由 JS 動態渲染 -->
       </div>
     </nav>
   </header>
@@ -121,7 +118,7 @@
   </div>
 
   <!-- 彈窗 1：新增 / 編輯行程節點 Modal -->
-  <div id="itemModal" class="fixed inset-0 z-50 hidden bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+  <div id="itemModal" class="fixed inset-0 z-50 hidden bg-ink/40 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-washi border border-borderWashi rounded-2xl max-w-xl w-full p-5 sm:p-6 shadow-xl my-8 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-borderWashi">
         <h3 id="itemModalTitle" class="font-serif font-bold text-lg text-indigoHok">新增行程節點</h3>
@@ -207,7 +204,7 @@
   </div>
 
   <!-- 彈窗 2：編輯單日「重點整理（大景點＋三餐＋住宿）」Modal -->
-  <div id="overviewEditModal" class="fixed inset-0 z-50 hidden bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="overviewEditModal" class="fixed inset-0 z-50 hidden bg-ink/40 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-washi border border-borderWashi rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl">
       <div class="flex items-center justify-between pb-3 border-b border-borderWashi">
         <h3 id="overviewModalTitle" class="font-serif font-bold text-lg text-indigoHok">編輯當日重點整理</h3>
@@ -247,37 +244,19 @@
     </div>
   </div>
 
-  <!-- 彈窗 3：資料備份匯出/匯入 & Firebase 雲端同步狀態 Modal -->
-  <div id="dataModal" class="fixed inset-0 z-50 hidden bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4">
+  <!-- 彈窗 3：資料備份匯出/匯入 & Firebase 雲端同步設定 Modal -->
+  <div id="dataModal" class="fixed inset-0 z-50 hidden bg-ink/40 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-washi border border-borderWashi rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl space-y-5 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-borderWashi">
-        <h3 class="font-serif font-bold text-lg text-indigoHok">⚙️ 雲端帳號同步 & 離線備份</h3>
+        <h3 class="font-serif font-bold text-lg text-indigoHok">⚙️ 旅伴分享備份 & 雲端同步</h3>
         <button onclick="Controller.closeDataModal()" class="text-inkLight hover:text-ink text-xl leading-none">&times;</button>
-      </div>
-
-      <!-- Firebase 雲端雙向同步狀態 -->
-      <div class="bg-iceblue/50 p-4 rounded-xl border border-borderWashi space-y-3">
-        <div class="flex items-center justify-between">
-          <h4 class="font-bold text-sm text-indigoHok">☁️ Firebase 雲端雙向同步（專案：hokkaido-5f175）</h4>
-        </div>
-        <p id="modalAuthStatusText" class="text-xs text-ink leading-relaxed">
-          請使用已授權的 Google 帳號登入，登入後所有修改與勾選都會即時與旅伴同步。
-        </p>
-        <div class="flex flex-wrap gap-2">
-          <button id="modalLoginBtn" onclick="Controller.signInGoogle()" class="px-4 py-2 rounded-lg bg-indigoHok text-white text-xs font-bold hover:opacity-95 shadow-sm">
-            🔑 使用 Google 帳號登入
-          </button>
-          <button id="modalLogoutBtn" onclick="Controller.signOutGoogle()" class="hidden px-4 py-2 rounded-lg bg-linen text-ink text-xs font-medium hover:bg-terracotta/15 hover:text-terracotta border border-borderWashi">
-            登出目前帳號
-          </button>
-        </div>
       </div>
 
       <!-- 本地 JSON 匯出匯入 -->
       <div class="bg-white p-4 rounded-xl border border-borderWashi space-y-3">
-        <h4 class="font-bold text-sm text-indigoHok">📦 離線備份與還原（JSON 檔）</h4>
+        <h4 class="font-bold text-sm text-indigoHok">📦 離線備份與分享給旅伴（JSON 檔）</h4>
         <p class="text-xs text-inkLight leading-relaxed">
-          建議出發前匯出一份 JSON 檔案留存；即使在無網路的飛機上或地下鐵，本網頁仍可離線瀏覽與編輯，恢復連線後自動同步。
+          出發前可將整理好的 11 天完整行程匯出成 JSON 檔案傳給旅伴，旅伴打開本網頁後點選「匯入行程」即可載入最新功課。
         </p>
         <div class="flex flex-wrap gap-2">
           <button onclick="Controller.exportJSON()" class="px-3.5 py-2 rounded-lg bg-indigoHok text-white text-xs font-medium hover:opacity-95">
@@ -292,44 +271,287 @@
           </button>
         </div>
       </div>
+
+      <!-- Firebase 雲端雙向同步設定 -->
+      <div class="bg-iceblue/50 p-4 rounded-xl border border-borderWashi space-y-2.5">
+        <h4 class="font-bold text-sm text-indigoHok">☁️ Firebase Firestore 即時雙向同步（選用）</h4>
+        <p class="text-xs text-inkLight leading-relaxed">
+          若希望與旅伴手機即時同步勾選清單與行程修改，請貼上您的 Firebase Web App <code class="bg-white px-1 rounded">firebaseConfig</code> JSON（留空則維持本地瀏覽器自動儲存）：
+        </p>
+        <textarea id="firebaseConfigInput" rows="4" placeholder='{"apiKey": "...", "authDomain": "...", "projectId": "..."}' class="w-full rounded-lg border border-borderWashi bg-white p-2.5 text-xs font-mono focus:outline-none focus:border-indigoHok"></textarea>
+        <div class="flex justify-end gap-2">
+          <button onclick="Controller.saveFirebaseConfig()" class="px-4 py-1.5 rounded-lg bg-pine text-white text-xs font-medium hover:opacity-95">
+            連線至雲端資料庫
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Firebase SDK (Modular v13.3.0 via CDN：含 App + Firestore + Auth) -->
+  <!-- 彈窗 4：全螢幕高對比「給站務員看」日文劃位展示模式 (Show to Staff Fullscreen) -->
+  <div id="staffFullscreenModal" class="fixed inset-0 z-50 hidden bg-white flex flex-col justify-between p-5 sm:p-8 overflow-y-auto">
+    <div class="max-w-2xl mx-auto w-full">
+      <div class="flex items-center justify-between pb-4 border-b-2 border-indigoHok">
+        <span class="px-3 py-1 rounded-full bg-indigoHok text-white text-xs font-bold tracking-wider">JR 窓口提示用｜SHOW TO STAFF</span>
+        <button onclick="Controller.closeStaffFullscreen()" class="px-4 py-1.5 rounded-xl bg-linen text-ink font-bold text-sm">✕ 關閉全螢幕</button>
+      </div>
+
+      <div class="mt-6 space-y-5 text-ink">
+        <p class="text-xl sm:text-2xl font-bold leading-relaxed">
+          すみません、JR北海道レールパス（5日間用）の引き換えと、以下の指定席の予約（大人2名・隣同士の席）をお願いします。
+        </p>
+
+        <div class="p-4 rounded-2xl bg-indigoHok text-white text-center">
+          <div class="text-sm opacity-90">【利用開始日】</div>
+          <div class="text-2xl sm:text-3xl font-bold tracking-wider mt-1">2026年12月1日</div>
+        </div>
+
+        <ol class="space-y-3.5 text-lg sm:text-xl font-bold">
+          <li class="p-4 rounded-xl bg-washi border-2 border-indigoHok/30">
+            <span class="text-terracotta mr-1">1.</span> 12月2日 札幌 (06:52) → 旭川 (08:27)<br/>
+            <span class="text-indigoHok">特急オホーツク 1号</span>
+          </li>
+          <li class="p-4 rounded-xl bg-washi border-2 border-indigoHok/30">
+            <span class="text-terracotta mr-1">2.</span> 12月2日 旭川 (20:00) → 札幌 (21:25)<br/>
+            <span class="text-indigoHok">特急ライラック 42号</span>
+          </li>
+          <li class="p-4 rounded-xl bg-washi border-2 border-indigoHok/30">
+            <span class="text-terracotta mr-1">3.</span> 12月4日 札幌 (10:56) → 洞爺 (12:50)<br/>
+            <span class="text-indigoHok">特急北斗 10号</span>
+            <div class="text-sm sm:text-base text-pine mt-1">（可能であれば進行方向左側 A・B席）</div>
+          </li>
+          <li class="p-4 rounded-xl bg-washi border-2 border-indigoHok/30">
+            <span class="text-terracotta mr-1">4.</span> 12月5日 洞爺 (12:50) → 函館 (14:40)<br/>
+            <span class="text-indigoHok">特急北斗 10号</span>
+            <div class="text-sm sm:text-base text-pine mt-1">（可能であれば進行方向左側 A・B席）</div>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto w-full pt-6 mt-6 border-t border-borderWashi flex justify-center">
+      <button onclick="Controller.closeStaffFullscreen()" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-indigoHok text-white font-bold text-base">
+        返回旅遊書
+      </button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK (Modular v10 via CDN) -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
-    import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    window.__FirebaseSDK = {
-      initializeApp,
-      getFirestore, doc, onSnapshot, setDoc,
-      getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
-    };
-
+    window.__FirebaseSDK = { initializeApp, getFirestore, doc, onSnapshot, setDoc };
     if (window.FirebaseDataLayer) {
-      window.FirebaseDataLayer.initFirebase();
+      window.FirebaseDataLayer.init();
     }
   </script>
 
   <script>
     /**
      * =========================================================================
-     * 模組 1: CONFIG_STATE（你的 Firebase 設定、預設 11 天行程與全局狀態）
+     * 模組 1: CONFIG_STATE（預設 11 天行程 + 完整 8 段交通攻略資料集）
      * =========================================================================
      */
-    const FIREBASE_CONFIG = {
-      apiKey: "AIzaSyC5zfQhTCLX7zBLD0pk2RtN5k7pZbnnjuI",
-      authDomain: "hokkaido-5f175.firebaseapp.com",
-      projectId: "hokkaido-5f175",
-      storageBucket: "hokkaido-5f175.firebasestorage.app",
-      messagingSenderId: "358586311521",
-      appId: "1:358586311521:web:af56169b9191f6e4e39b20"
+    const DEFAULT_FIREBASE_CONFIG = {
+      apiKey: "",
+      authDomain: "",
+      projectId: "",
+      storageBucket: "",
+      messagingSenderId: "",
+      appId: ""
     };
 
     const STORAGE_KEY_DATA = "hokkaido_2026_guidebook_data_v1";
+    const STORAGE_KEY_FB = "hokkaido_2026_firebase_cfg_v1";
+
+    // 日文劃位小紙條（原封不動）
+    const JP_RESERVATION_NOTE = `すみません、JR北海道レールパス（5日間用）の引き換えと、以下の指定席の予約（大人2名・隣同士の席）をお願いします。
+
+【利用開始日】2026年12月1日
+
+1. 12月2日 札幌 (06:52) → 旭川 (08:27)｜特急オホーツク 1号
+2. 12月2日 旭川 (20:00) → 札幌 (21:25)｜特急ライラック 42号
+3. 12月4日 札幌 (10:56) → 洞爺 (12:50)｜特急北斗 10号（可能であれば進行方向左側 A・B席）
+4. 12月5日 洞爺 (12:50) → 函館 (14:40)｜特急北斗 10号（可能であれば進行方向左側 A・B席）`;
+
+    // 完整 8 段交通時刻表資料集（完全依據提供資料，無省略或編造）
+    const TRANSPORT_SEGMENTS = [
+      {
+        id: "seg_1",
+        num: "①",
+        dateLabel: "11/28（六）下午",
+        route: "新千歲機場 → 札幌",
+        lineName: "JR 快速 Airport 號",
+        tags: [
+          { text: "另購車票（不刷Pass）", tone: "neutral" },
+          { text: "自由席 ¥1,230 / u-seat 指定席 ¥2,230", tone: "price" }
+        ],
+        targetMain: "14:50 → 15:26｜特別快速 Airport 111 號（往小樽）｜36分",
+        backups: [
+          { label: "前2班", time: "14:29 → 15:06", train: "快速 Airport 97 號（往札幌）", duration: "37分" },
+          { label: "前1班", time: "14:39 → 15:23", train: "區間快速 Airport 99 號（往札幌）", duration: "44分" },
+          { label: "後1班", time: "14:59 → 15:36", train: "快速 Airport 113 號（往札幌）", duration: "37分" },
+          { label: "後2班", time: "15:09 → 15:52", train: "區間快速 Airport 115 號（往札幌）", duration: "43分" }
+        ],
+        note: "直接刷 Suica/ICOCA 搭自由席，或現場加 ¥1,000 買第 4 節車廂 u-seat 放行李。",
+        noteType: "info"
+      },
+      {
+        id: "seg_2",
+        num: "②",
+        dateLabel: "12/1（二）上午",
+        route: "札幌 → 小樽",
+        lineName: "JR 函館本線普通",
+        tags: [
+          { text: "5日Pass免費（啟用日）", tone: "pass" },
+          { text: "全車自由席・免劃位", tone: "free" },
+          { text: "原價 ¥800", tone: "price" }
+        ],
+        targetMain: "07:33 → 08:22｜函館本線 普通（往小樽）｜49分",
+        backups: [
+          { label: "前2班", time: "07:05 → 07:51", train: "普通（往小樽）", duration: "46分" },
+          { label: "前1班", time: "07:14 → 08:01", train: "普通（往小樽）", duration: "47分" },
+          { label: "後1班", time: "07:45 → 08:35", train: "普通（往小樽）", duration: "50分" },
+          { label: "後2班", time: "07:59 → 08:47", train: "普通（往小樽）", duration: "48分" }
+        ],
+        note: "去程坐 <strong>右側靠窗</strong> 看石狩灣雪景。",
+        noteType: "scenic"
+      },
+      {
+        id: "seg_3",
+        num: "③",
+        dateLabel: "12/1（二）晚上",
+        route: "小樽 → 札幌",
+        lineName: "JR 函館本線普通",
+        tags: [
+          { text: "5日Pass免費", tone: "pass" },
+          { text: "全車自由席・免劃位", tone: "free" },
+          { text: "原價 ¥800", tone: "price" }
+        ],
+        targetMain: "20:38 → 21:23｜函館本線 普通（往岩見澤）｜45分",
+        backups: [
+          { label: "前2班", time: "20:03 → 20:49", train: "普通（往札幌）", duration: "46分" },
+          { label: "前1班", time: "20:22 → 21:11", train: "普通（往新千歲機場）", duration: "49分" },
+          { label: "後1班", time: "20:57 → 21:44", train: "普通（往札幌）", duration: "47分" },
+          { label: "後2班", time: "21:14 → 22:01", train: "普通（往札幌）", duration: "47分" }
+        ],
+        note: "",
+        noteType: "info"
+      },
+      {
+        id: "seg_4",
+        num: "④",
+        dateLabel: "12/2（三）上午",
+        route: "札幌 → 旭川 → 美瑛",
+        lineName: "特急轉富良野線",
+        tags: [
+          { text: "5日Pass免費", tone: "pass" },
+          { text: "前半段全車指定席・需劃位", tone: "reserve" },
+          { text: "原價 ¥6,120", tone: "price" }
+        ],
+        transferLegs: [
+          {
+            step: "第一段（需劃位）",
+            detail: "06:52 札幌 → 08:27 旭川｜特急オホーツク 1号（鄂霍次克 1 號）｜1小時35分"
+          },
+          {
+            step: "旭川站內轉乘",
+            detail: "緩衝 13 分鐘，<strong>不用出閘門</strong>，直接依指標走至富良野線月台。",
+            isTransfer: true
+          },
+          {
+            step: "第二段（自由席・免劃位）",
+            detail: "08:40 旭川 → 09:17 美瑛｜JR 富良野線 普通｜37分"
+          }
+        ],
+        backups: [],
+        note: "",
+        noteType: "info"
+      },
+      {
+        id: "seg_5",
+        num: "⑤",
+        dateLabel: "12/2（三）晚上",
+        route: "旭川 → 札幌",
+        lineName: "特急紫丁香",
+        tags: [
+          { text: "5日Pass免費", tone: "pass" },
+          { text: "全車指定席・需劃位", tone: "reserve" },
+          { text: "原價 ¥5,440", tone: "price" }
+        ],
+        targetMain: "20:00 → 21:25｜特急ライラック 42号（紫丁香 42 號）｜1小時25分",
+        backups: [],
+        note: "",
+        noteType: "info"
+      },
+      {
+        id: "seg_6",
+        num: "⑥",
+        dateLabel: "12/4（五）上午",
+        route: "札幌 → 洞爺",
+        lineName: "JR 特急北斗線",
+        tags: [
+          { text: "5日Pass免費", tone: "pass" },
+          { text: "全車指定席・需劃位", tone: "reserve" },
+          { text: "原價 ¥6,690", tone: "price" }
+        ],
+        targetMain: "10:56 → 12:50｜特急北斗 10 號｜1小時54分",
+        backups: [
+          { label: "前2班", time: "08:43 → 10:38", train: "特急北斗 6 號", duration: "1小時55分" },
+          { label: "前1班", time: "09:45 → 11:38", train: "特急北斗 8 號", duration: "1小時53分" },
+          { label: "後1班", time: "12:09 → 14:08", train: "特急北斗 12 號", duration: "1小時59分" },
+          { label: "後2班", time: "13:26 → 15:20", train: "特急北斗 14 號", duration: "1小時54分" }
+        ],
+        note: "優先劃 <strong>行進方向左側（A/B 席）</strong> 看內浦灣海景。",
+        noteType: "scenic"
+      },
+      {
+        id: "seg_7",
+        num: "⑦",
+        dateLabel: "12/5（六）中午",
+        route: "洞爺 → 函館",
+        lineName: "JR 特急北斗線",
+        tags: [
+          { text: "5日Pass免費（最後一天）", tone: "pass" },
+          { text: "全車指定席・需劃位", tone: "reserve" },
+          { text: "原價 ¥6,250", tone: "price" }
+        ],
+        targetMain: "12:50 → 14:40｜特急北斗 10 號｜1小時50分",
+        backups: [
+          { label: "前2班", time: "10:39 → 12:33", train: "特急北斗 6 號", duration: "1小時54分" },
+          { label: "前1班", time: "11:39 → 13:35", train: "特急北斗 8 號", duration: "1小時56分" },
+          { label: "後1班", time: "14:08 → 16:07", train: "特急北斗 12 號", duration: "1小時59分" },
+          { label: "後2班", time: "15:21 → 17:13", train: "特急北斗 14 號", duration: "1小時52分" }
+        ],
+        note: "優先劃 <strong>行進方向左側（A/B 席）</strong>。",
+        noteType: "scenic"
+      },
+      {
+        id: "seg_8",
+        num: "⑧",
+        dateLabel: "12/8（二）上午",
+        route: "函館車站 → 函館機場",
+        lineName: "函館帝産巴士 機場接駁專車",
+        tags: [
+          { text: "另購（Pass不適用）", tone: "neutral" },
+          { text: "單程 ¥700（IC卡/現金）", tone: "price" },
+          { text: "11號乘車處", tone: "reserve" }
+        ],
+        targetMain: "07:50 → 08:10（強烈推薦） 或 08:00 → 08:20｜車程 20 分",
+        backups: [
+          { label: "前2班", time: "06:40 → 07:00", train: "函館帝産機場巴士", duration: "20分" },
+          { label: "前1班", time: "07:40 → 08:00", train: "函館帝産機場巴士", duration: "20分" },
+          { label: "後1班", time: "09:10 → 09:30", train: "函館帝産機場巴士", duration: "20分" },
+          { label: "後2班", time: "09:20 → 09:40", train: "函館帝産機場巴士", duration: "20分" }
+        ],
+        note: "⚠️ 特別提醒：2026/12/1 冬季時刻表 <strong>沒有 07:57 班次</strong>，趕國際線建議搭 <strong>07:50</strong> 最穩妥。",
+        noteType: "warning"
+      }
+    ];
 
     const DEFAULT_TRIP_DATA = {
+      transport_pass_checks: [false, false, false],
       days_overview: [
         {
           day: 1,
@@ -494,18 +716,18 @@
           transport: "新千歲機場國內線航廈 2F & 3F 美食街步行",
           hours_cost: "10:00 - 20:00｜約 ¥3,000",
           highlights: "必搶「美瑛選果」剛出爐玉米麵包、3F 北海道拉麵道場「えびそば一幻」濃郁蝦湯拉麵、2F「KINOTOYA」極上牛乳霜淇淋與現烤起司塔。",
-          image_url: "", notes: "美瑛選果玉米麵包出爐即秒殺，入境後建議先去排隊！",
-          checklist: [{ text: "美瑛選果玉米麵包", done: false }, { text: "一幻鮮蝦拉麵", done: false }, { text: "KINOTOYA 霜淇淋＆起司塔", done: false }]
+          image_url: "", notes: "美瑛選果玉米麵包出爐即秒殺，入境後建議先去排隊！並順道至 B1 JR 外籍旅客服務處兌換 5 日 Pass 與領取 8 張指定席車票。",
+          checklist: [{ text: "美瑛選果玉米麵包", done: false }, { text: "一幻鮮蝦拉麵", done: false }, { text: "KINOTOYA 霜淇淋＆起司塔", done: false }, { text: "B1 JR 櫃檯兌換 5 日 Pass 與劃位", done: false }]
         },
         {
-          id: "d1_3", day: 1, time: "14:42 - 15:20", category: "交通",
-          title: "JR 快速 Airport 號 ➔ 札幌車站",
+          id: "d1_3", day: 1, time: "14:50 - 15:26", category: "交通",
+          title: "JR 特別快速 Airport 111 號 ➔ 札幌車站",
           location_query: "Sapporo Station",
-          transport: "新千歲機場 B1 JR 車站搭乘「快速 Airport 號」直達札幌站（約 38 分鐘）",
-          hours_cost: "指定席 u-Seat 約 ¥1,990 / 自由席 ¥1,150",
+          transport: "新千歲機場 B1 JR 車站搭乘「特別快速 Airport 111 號（往小樽）」（約 36 分鐘）",
+          hours_cost: "自由席 ¥1,230 / u-seat 指定席 ¥2,230（不刷 Pass）",
           highlights: "銀藍色列車穿梭於覆滿初雪的石狩平原，感受北海道第一眼冬日浪漫。",
-          image_url: "", notes: "建議加購 u-Seat 指定席，大件行李放置更從容。",
-          checklist: [{ text: "購買 JR 車票或刷 Suica/ICOCA 進站", done: false }]
+          image_url: "", notes: "直接刷 Suica/ICOCA 搭自由席，或加 ¥1,000 買第 4 節車廂 u-seat 方便放行李（前後備用班次詳見「交通攻略」）。",
+          checklist: [{ text: "購買車票或刷 Suica/ICOCA 進站", done: false }]
         },
         {
           id: "d1_4", day: 1, time: "16:00", category: "住宿",
@@ -694,13 +916,13 @@
 
         // --- DAY 4 ---
         {
-          id: "d4_1", day: 4, time: "08:00 - 09:30", category: "餐廳",
+          id: "d4_1", day: 4, time: "07:33 - 09:30", category: "餐廳",
           title: "JR 朝里海景列車 ➔ 小樽三角市場（三色海鮮丼）",
           location_query: "Sankaku Market Otaru",
-          transport: "JR 札幌站搭乘函館本線往小樽（靠右側座位欣賞朝里海景，約 35 分鐘）",
+          transport: "JR 札幌站 07:33 搭乘函館本線普通（5日Pass啟用日，坐右側看海景，08:22 抵小樽）",
           hours_cost: "三角市場 07:00 - 17:00｜約 ¥3,200",
           highlights: "列車貼著積雪海岸線飛馳，抵達小樽站旁即達三角市場，大口享用鋪滿海膽、帝王蟹肉與鮭魚卵的豪華三色海鮮丼。",
-          image_url: "", notes: "去程坐火車行進方向「右側」才能拍到無敵海景！",
+          image_url: "", notes: "去程坐火車行進方向「右側靠窗」才能拍到石狩灣雪景！",
           checklist: [{ text: "搶坐 JR 右側靠窗海景席", done: false }, { text: "三角市場吃三色海鮮丼", done: false }]
         },
         {
@@ -754,26 +976,26 @@
           checklist: [{ text: "拍攝小樽弧形港灣藍調時刻", done: false }]
         },
         {
-          id: "d4_7", day: 4, time: "18:30 - 20:30", category: "餐廳",
+          id: "d4_7", day: 4, time: "18:30 - 20:38", category: "餐廳",
           title: "石造倉庫餐廳 ISO 晚餐 ＆ 夜間「青之運河」萬盞藍燈",
           location_query: "Otaru Canal",
-          transport: "下山後前往小樽運河沿岸",
+          transport: "下山後前往小樽運河沿岸 ➔ 20:38 JR 函館本線普通返回札幌（21:23 抵）",
           hours_cost: "青之運河點燈至 22:30｜晚餐約 ¥3,500",
           highlights: "在歷史石造倉庫改建的 ISO 餐廳壁爐旁享用濃郁海膽義大利麵，餐後漫步點亮一萬顆藍色 LED 的夢幻「青之運河」，再搭 JR 返回札幌。",
-          image_url: "", notes: "回程 JR 注意末班車時間（約 22:30 前從容返程）。",
+          image_url: "", notes: "回程坐左側；目標搭 20:38 班次返札幌。",
           checklist: [{ text: "拍攝夜晚夢幻「青之運河」藍燈倒影", done: false }]
         },
 
         // --- DAY 5 ---
         {
-          id: "d5_1", day: 5, time: "08:00 - 10:03", category: "交通",
-          title: "「ありんこ Arinko」飯糰 ➔ JR 特急丁香號＆富良野線往美瑛",
+          id: "d5_1", day: 5, time: "06:52 - 09:17", category: "交通",
+          title: "JR 特急鄂霍次克 1 號 ➔ 旭川轉富良野線往美瑛",
           location_query: "Biei Station",
-          transport: "札幌站購餐 ➔ 搭乘 JR 特急丁香號至旭川轉富良野線抵達美瑛站",
-          hours_cost: "車程約 2 小時 3 分",
-          highlights: "在火車上享用現捏熱呼呼的「起司鰹魚/鮭魚飯糰」，窗外風景從城市漸變為一望無際的純白美瑛丘陵。",
-          image_url: "", notes: "JR 富良野線班次較少，務必準時轉乘。",
-          checklist: [{ text: "札幌站買 Arinko 現捏起司飯糰", done: false }]
+          transport: "06:52 札幌 ➔ 08:27 旭川（特急オホーツク 1号，需劃位）➔ 站內轉乘 08:40 富良野線 ➔ 09:17 美瑛",
+          hours_cost: "5日Pass免費（原價 ¥6,120）",
+          highlights: "在火車上享用現捏飯糰，旭川站緩衝 13 分鐘不用出閘門直接走至富良野線月台，窗外漸變為一望無際的純白美瑛丘陵。",
+          image_url: "", notes: "前段全車指定席請持 5 日 Pass 與指定席券上車。",
+          checklist: [{ text: "札幌站買早餐/飯糰帶上車", done: false }]
         },
         {
           id: "d5_2", day: 5, time: "10:25 - 11:45", category: "景點",
@@ -819,17 +1041,17 @@
           id: "d5_6", day: 5, time: "16:40 - 18:15", category: "景點",
           title: "富良野森林精靈露台 Ningle Terrace ＆ 森之時計咖啡",
           location_query: "Ningle Terrace Furano",
-          transport: "包車南下前往新富良野王子大飯店旁森林區",
+          transport: "包車南下前往新富良野王子大飯店旁森林區 ➔ 晚間至旭川搭 20:00 特急紫丁香 42 號返札幌",
           hours_cost: "點燈 16:00 起｜咖啡蛋糕約 ¥1,300",
           highlights: "雪林中 15 座手工藝小木屋亮起暖黃燈火，宛如走進童話繪本；接著在《溫柔時光》日劇取景地「森之時計」親手磨咖啡豆配「初雪」蛋糕。",
-          image_url: "", notes: "木棧道結冰易滑，請小心步伐。",
+          image_url: "", notes: "木棧道結冰易滑，請小心步伐；20:00 由旭川搭特急ライラック 42号返回札幌（21:25 抵）。",
           checklist: [{ text: "漫步亮燈的森林精靈露台", done: false }, { text: "在森之時計親自手磨咖啡豆", done: false }]
         },
         {
-          id: "d5_7", day: 5, time: "21:00 - 22:30", category: "餐廳",
+          id: "d5_7", day: 5, time: "21:30 - 22:45", category: "餐廳",
           title: "札幌大衆酒場 有頂天（薄野昭和復古居酒屋宵夜）",
           location_query: "Susukino Sapporo",
-          transport: "由富良野返回札幌市區後步行至薄野",
+          transport: "21:25 返抵札幌站後前往薄野",
           hours_cost: "營業至深夜｜約 ¥3,000",
           highlights: "充滿昭和懷舊海報與熱鬧氛圍的大眾居酒屋，點幾串炭火燒鳥、熱呼呼關東煮、新鮮刺身與冰涼生啤酒犒賞充實的一天。",
           image_url: "", notes: "返抵札幌後的最佳深夜食堂。",
@@ -910,17 +1132,17 @@
 
         // --- DAY 7 ---
         {
-          id: "d7_1", day: 7, time: "08:30 - 10:30", category: "交通",
-          title: "JR 特急北斗號 ➔ 洞爺湖（車上享用螃蟹鐵路便當）",
+          id: "d7_1", day: 7, time: "10:56 - 12:50", category: "交通",
+          title: "JR 特急北斗 10 號 ➔ 洞爺（車上享用螃蟹鐵路便當）",
           location_query: "Toya Station",
-          transport: "JR 札幌站搭乘「特急北斗號（Hokuto）」南下至洞爺站（約 1 小時 55 分）",
-          hours_cost: "指定席約 ¥6,200｜便當約 ¥1,400",
-          highlights: "在札幌站買好經典「螃蟹鐵路便當（カニ駅弁）」，列車沿著白雪覆蓋的太平洋海岸線馳騁，抵達洞爺站後轉乘飯店接駁車或巴士至湖畔。",
+          transport: "JR 札幌站 10:56 搭乘「特急北斗 10 號」南下至洞爺站（12:50 抵達，車程 1 小時 54 分）",
+          hours_cost: "5日Pass免費（原價 ¥6,690）｜便當約 ¥1,400",
+          highlights: "優先劃行進方向左側（A/B 席）欣賞內浦灣雪景海灣！在札幌站買好經典「螃蟹鐵路便當」，抵達洞爺站後轉乘飯店接駁車或巴士至湖畔。",
           image_url: "", notes: "記得提前預約「洞爺湖乃之風」或確認道南巴士時刻表。",
           checklist: [{ text: "購買札幌站招牌螃蟹鐵路便當", done: false }]
         },
         {
-          id: "d7_2", day: 7, time: "11:15 - 12:30", category: "餐廳",
+          id: "d7_2", day: 7, time: "13:15 - 14:15", category: "餐廳",
           title: "望羊蹄 Boyotei（70年昭和復古洋食館・鐵板漢堡排）",
           location_query: "Boyotei Lake Toya",
           transport: "洞爺湖溫泉街中心步行即達",
@@ -930,7 +1152,7 @@
           checklist: [{ text: "品嚐招牌鐵板漢堡排＆炸大蝦", done: false }]
         },
         {
-          id: "d7_3", day: 7, time: "13:30 - 15:30", category: "景點",
+          id: "d7_3", day: 7, time: "14:30 - 16:00", category: "景點",
           title: "有珠山纜車（俯瞰火山口・昭和新山・洞爺湖全景）",
           location_query: "Usuzan Ropeway",
           transport: "洞爺湖溫泉搭乘計程車或巴士約 15 分鐘至昭和新山山麓站",
@@ -972,17 +1194,17 @@
 
         // --- DAY 8 ---
         {
-          id: "d8_1", day: 8, time: "08:30 - 13:45", category: "交通",
-          title: "乃之風湖景早餐 ➔ JR 北斗10號沿海往函館 ➔ Tokyu STAY",
+          id: "d8_1", day: 8, time: "08:30 - 14:40", category: "交通",
+          title: "乃之風湖景早餐 ➔ JR 北斗 10 號沿海往函館 ➔ Tokyu STAY",
           location_query: "Tokyu STAY Hakodate Asaichi",
-          transport: "飯店接駁巴士至洞爺站 ➔ 搭乘 JR 特急北斗 10 號沿內浦灣抵達函館站（約 1 小時 50 分）",
-          hours_cost: "指定席約 ¥5,800",
-          highlights: "清晨再泡一次湖景晨湯與豐盛早餐後，搭乘火車沿著浪花拍打雪岸的內浦灣抵達函館，入住緊鄰朝市的「Tokyu STAY 函館朝市」。",
+          transport: "洞爺站 12:50 搭乘 JR 特急北斗 10 號沿內浦灣 ➔ 14:40 抵達函館站（5日Pass最後一天）",
+          hours_cost: "5日Pass免費（原價 ¥6,250）",
+          highlights: "清晨再泡一次湖景晨湯與豐盛早餐後，搭乘火車沿著浪花拍打雪岸的內浦灣（優先劃左側 A/B 席）抵達函館，入住緊鄰朝市的「Tokyu STAY 函館朝市」。",
           image_url: "", notes: "Tokyu STAY 房內附洗脫烘衣機，非常適合行程第 8 天清洗衣物！",
-          checklist: [{ text: "洞爺站搭乘 JR 北斗 10 號", done: false }, { text: "入住 Tokyu STAY 函館朝市", done: false }]
+          checklist: [{ text: "洞爺站搭乘 12:50 JR 北斗 10 號", done: false }, { text: "入住 Tokyu STAY 函館朝市", done: false }]
         },
         {
-          id: "d8_2", day: 8, time: "15:00 - 16:30", category: "餐廳",
+          id: "d8_2", day: 8, time: "15:15 - 16:30", category: "餐廳",
           title: "Starbucks 函館海灣店 / Cafe LAMINAIRE（港灣海景午茶）",
           location_query: "Starbucks Coffee Hakodate Bayside",
           transport: "飯店沿港灣步行約 10 分鐘至金森紅磚倉庫區",
@@ -1138,7 +1360,7 @@
 
         // --- DAY 11 ---
         {
-          id: "d11_1", day: 11, time: "07:15 - 07:50", category: "住宿",
+          id: "d11_1", day: 11, time: "06:45 - 07:15", category: "住宿",
           title: "頂樓露天海景風呂「灯の湯」晨湯賞函館港日出",
           location_query: "Tokyu STAY Hakodate Asaichi",
           transport: "飯店頂樓大浴場",
@@ -1148,27 +1370,17 @@
           checklist: [{ text: "泡晨湯看函館港灣日出", done: false }]
         },
         {
-          id: "d11_2", day: 11, time: "08:00 - 09:00", category: "餐廳",
-          title: "十字屋珈琲 Jujiya Coffee（昭和復古手沖咖啡＆厚切吐司）",
-          location_query: "Jujiya Coffee Hakodate",
-          transport: "函館朝市旁步行 3 分鐘",
-          hours_cost: "08:00 - 17:00｜約 ¥900",
-          highlights: "函館老字號自家烘焙咖啡館，在懷舊木質空間裡品嚐職人手沖咖啡與金黃酥脆厚切奶油吐司。",
-          image_url: "", notes: "享用完畢回飯店領取寄放行李前往車站前巴士站。",
-          checklist: [{ text: "享用老店手沖咖啡與厚切吐司", done: false }]
-        },
-        {
-          id: "d11_3", day: 11, time: "09:10 - 09:40", category: "交通",
-          title: "函館帝產巴士 ➔ 函館機場 (HKD)",
+          id: "d11_2", day: 11, time: "07:50 - 08:10", category: "交通",
+          title: "函館帝産巴士 ➔ 函館機場 (HKD)（11號乘車處）",
           location_query: "Hakodate Airport",
-          transport: "JR 函館站前 11 號巴士站牌搭乘「函館帝產機場接駁巴士」（約 20 分鐘）",
-          hours_cost: "車資 ¥700（支援交通卡）",
+          transport: "JR 函館站前 11 號乘車處搭乘 07:50（或 08:00）「函館帝産機場接駁專車」（車程 20 分）",
+          hours_cost: "單程 ¥700（IC卡/現金，Pass不適用）",
           highlights: "巴士穿梭於純白雪景街道，僅需 20 分鐘即可輕鬆抵達函館機場，完全不必長途拉車。",
-          image_url: "", notes: "提前 2.5 小時抵達機場辦理托運。",
-          checklist: [{ text: "搭乘帝產巴士抵達函館機場", done: false }]
+          image_url: "", notes: "⚠️ 2026/12/1 冬季時刻表沒有 07:57 班次，趕國際線建議搭 07:50 最穩妥！",
+          checklist: [{ text: "於 11 號乘車處搭乘 07:50 帝産巴士", done: false }]
         },
         {
-          id: "d11_4", day: 11, time: "10:30 - 11:45", category: "餐廳",
+          id: "d11_3", day: 11, time: "08:30 - 11:45", category: "餐廳",
           title: "函館機場 2F「美鈴咖啡 MISUZU Cafe」＆ Snaffle's 伴手禮",
           location_query: "Hakodate Airport",
           transport: "函館機場國內線航廈 2F",
@@ -1178,7 +1390,7 @@
           checklist: [{ text: "美鈴咖啡喝炭燒咖啡＆吃咖啡霜淇淋", done: false }, { text: "購買 Snaffle's 起司歐姆蕾伴手禮", done: false }]
         },
         {
-          id: "d11_5", day: 11, time: "12:20", category: "交通",
+          id: "d11_4", day: 11, time: "12:20", category: "交通",
           title: "台灣虎航 IT237 函館 (HKD) ➔ 桃園機場（滿載回憶歸國）",
           location_query: "Taiwan Taoyuan International Airport",
           transport: "函館機場國際線登機門搭乘台灣虎航 IT237 返台",
@@ -1191,35 +1403,39 @@
     };
 
     const STATE = {
-      activeTab: "overview",        // "overview" | 1..11
+      activeTab: "overview",        // "overview" | "transport" | 1..11
+      transportSubTab: "timetable", // "timetable" | "pass" | "jpcard" | "snow"
+      expandedTransportIds: new Set(),
       selectedCategory: "全部",     // "全部" | "景點" | "餐廳" | "交通" | "住宿"
       regionFilter: "all",          // "all" | "sapporo" | "central" | "south"
       overviewLayout: "cards",      // "cards" | "table"
       isEditMode: false,
       firebaseConnected: false,
-      currentUser: null,
       tripData: null
     };
 
     /**
      * =========================================================================
-     * 模組 2: FIREBASE_DATA_LAYER（Google 驗證 + 雲端雙向同步 + LocalStorage 備援層）
+     * 模組 2: FIREBASE_DATA_LAYER（雲端雙向同步 + LocalStorage 離線備援層）
      * =========================================================================
      */
     const FirebaseDataLayer = {
-      app: null,
       db: null,
-      auth: null,
-      provider: null,
       docRef: null,
       unsubscribe: null,
-      sdkInitialized: false,
 
-      initLocal() {
+      ensureSchema(data) {
+        if (!data.transport_pass_checks || !Array.isArray(data.transport_pass_checks)) {
+          data.transport_pass_checks = [false, false, false];
+        }
+        return data;
+      },
+
+      init() {
         const cached = localStorage.getItem(STORAGE_KEY_DATA);
         if (cached) {
           try {
-            STATE.tripData = JSON.parse(cached);
+            STATE.tripData = this.ensureSchema(JSON.parse(cached));
           } catch (e) {
             STATE.tripData = structuredClone(DEFAULT_TRIP_DATA);
           }
@@ -1227,88 +1443,65 @@
           STATE.tripData = structuredClone(DEFAULT_TRIP_DATA);
           localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(STATE.tripData));
         }
-        UI_VIEW.renderAll();
+
+        let cfg = DEFAULT_FIREBASE_CONFIG;
+        const savedCfg = localStorage.getItem(STORAGE_KEY_FB);
+        if (savedCfg) {
+          try { cfg = JSON.parse(savedCfg); } catch (e) {}
+        }
+
+        if (cfg && cfg.apiKey && cfg.projectId && window.__FirebaseSDK) {
+          this.connect(cfg);
+        } else {
+          UI_VIEW.renderAll();
+        }
       },
 
-      initFirebase() {
-        if (this.sdkInitialized || !window.__FirebaseSDK) return;
-        this.sdkInitialized = true;
-
+      connect(cfg) {
         try {
-          const {
-            initializeApp, getFirestore, doc,
-            getAuth, GoogleAuthProvider, onAuthStateChanged
-          } = window.__FirebaseSDK;
-
-          this.app = initializeApp(FIREBASE_CONFIG);
-          this.db = getFirestore(this.app);
-          this.auth = getAuth(this.app);
-          this.provider = new GoogleAuthProvider();
+          const { initializeApp, getFirestore, doc, onSnapshot } = window.__FirebaseSDK;
+          const app = initializeApp(cfg, "HokkaidoGuide_" + Date.now());
+          this.db = getFirestore(app);
           this.docRef = doc(this.db, "travel_books", "hokkaido_2026_winter");
 
-          // 監聽 Google 登入狀態（登入一次後瀏覽器會自動記住）
-          onAuthStateChanged(this.auth, (user) => {
-            STATE.currentUser = user || null;
-            if (user) {
-              this.subscribeFirestore();
+          if (this.unsubscribe) this.unsubscribe();
+          this.unsubscribe = onSnapshot(this.docRef, (snap) => {
+            STATE.firebaseConnected = true;
+            if (snap.exists()) {
+              STATE.tripData = this.ensureSchema(snap.data());
+              localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(STATE.tripData));
+              UI_VIEW.renderAll();
             } else {
-              if (this.unsubscribe) {
-                this.unsubscribe();
-                this.unsubscribe = null;
-              }
-              STATE.firebaseConnected = false;
-              UI_VIEW.updateSyncBadge();
+              this.persist(STATE.tripData, true);
             }
+            UI_VIEW.updateSyncBadge();
+          }, (err) => {
+            console.warn("Firebase 連線異常，維持本地模式：", err);
+            STATE.firebaseConnected = false;
+            UI_VIEW.updateSyncBadge();
           });
         } catch (err) {
           console.error("Firebase 初始化失敗：", err);
           STATE.firebaseConnected = false;
-          UI_VIEW.updateSyncBadge();
+          UI_VIEW.renderAll();
         }
       },
 
-      subscribeFirestore() {
-        if (!this.docRef || !window.__FirebaseSDK) return;
-        const { onSnapshot } = window.__FirebaseSDK;
-
-        if (this.unsubscribe) this.unsubscribe();
-        this.unsubscribe = onSnapshot(this.docRef, (snap) => {
-          STATE.firebaseConnected = true;
-          if (snap.exists()) {
-            STATE.tripData = snap.data();
-            localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(STATE.tripData));
-            UI_VIEW.renderAll();
-          } else {
-            // 雲端尚無資料時，將本地預設 11 天完整行程初始化寫入 Firestore
-            this.persist(STATE.tripData, true);
-          }
-          UI_VIEW.updateSyncBadge();
-        }, (err) => {
-          console.warn("Firestore 權限或連線異常：", err);
-          STATE.firebaseConnected = false;
-          UI_VIEW.updateSyncBadge();
-          if (err.code === "permission-denied") {
-            UI_VIEW.showToast("⚠️ 此 Google 帳號未在 Firestore 允許名單內");
-          }
-        });
-      },
-
       async persist(newData, silent = false) {
-        STATE.tripData = newData;
-        localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(newData));
+        STATE.tripData = this.ensureSchema(newData);
+        localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(STATE.tripData));
         UI_VIEW.renderAll();
 
-        if (STATE.firebaseConnected && STATE.currentUser && this.docRef && window.__FirebaseSDK) {
+        if (STATE.firebaseConnected && this.docRef && window.__FirebaseSDK) {
           try {
             const { setDoc } = window.__FirebaseSDK;
-            await setDoc(this.docRef, newData);
+            await setDoc(this.docRef, STATE.tripData);
             if (!silent) UI_VIEW.showToast("☁️ 已即時同步至雲端與本地");
           } catch (e) {
-            console.error("雲端寫入失敗：", e);
-            if (!silent) UI_VIEW.showToast("💾 已儲存至本機（雲端寫入受限）");
+            if (!silent) UI_VIEW.showToast("💾 已儲存至本機（雲端同步失敗）");
           }
         } else {
-          if (!silent) UI_VIEW.showToast("💾 已儲存至本機（登入 Google 可同步雲端）");
+          if (!silent) UI_VIEW.showToast("💾 已自動儲存至本機");
         }
       }
     };
@@ -1320,41 +1513,62 @@
      * =========================================================================
      */
     const Controller = {
-      async signInGoogle() {
-        if (!FirebaseDataLayer.auth || !window.__FirebaseSDK) {
-          alert("Firebase 模組尚未載入完成，請確認是透過本機伺服器 (Live Server) 或網址開啟頁面。");
-          return;
-        }
-        try {
-          const { signInWithPopup } = window.__FirebaseSDK;
-          const result = await signInWithPopup(FirebaseDataLayer.auth, FirebaseDataLayer.provider);
-          UI_VIEW.showToast(`👋 歡迎回來，${result.user.email}`);
-          this.closeDataModal();
-        } catch (err) {
-          console.error("Google 登入失敗：", err);
-          if (err.code !== "auth/popup-closed-by-user") {
-            alert("登入失敗：" + err.message);
-          }
-        }
-      },
-
-      async signOutGoogle() {
-        if (!FirebaseDataLayer.auth || !window.__FirebaseSDK) return;
-        try {
-          const { signOut } = window.__FirebaseSDK;
-          await signOut(FirebaseDataLayer.auth);
-          UI_VIEW.showToast("已登出 Google 帳號");
-          this.closeDataModal();
-        } catch (err) {
-          console.error("登出失敗：", err);
-        }
-      },
-
       switchTab(tab) {
         STATE.activeTab = tab;
         STATE.selectedCategory = "全部";
         UI_VIEW.renderAll();
         window.scrollTo({ top: 0, behavior: "smooth" });
+      },
+
+      switchTransportSubTab(subTab) {
+        STATE.transportSubTab = subTab;
+        UI_VIEW.renderAll();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      },
+
+      toggleBackupAccordion(segId) {
+        if (STATE.expandedTransportIds.has(segId)) {
+          STATE.expandedTransportIds.delete(segId);
+        } else {
+          STATE.expandedTransportIds.add(segId);
+        }
+        UI_VIEW.renderAll();
+      },
+
+      togglePassStep(stepIdx) {
+        const cloned = structuredClone(STATE.tripData);
+        if (!cloned.transport_pass_checks) cloned.transport_pass_checks = [false, false, false];
+        cloned.transport_pass_checks[stepIdx] = !cloned.transport_pass_checks[stepIdx];
+        FirebaseDataLayer.persist(cloned, true);
+        UI_VIEW.showToast(cloned.transport_pass_checks[stepIdx] ? "✅ 已標記完成步驟" : "已取消勾選");
+      },
+
+      async copyJapaneseNote() {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(JP_RESERVATION_NOTE);
+          } else {
+            const ta = document.createElement("textarea");
+            ta.value = JP_RESERVATION_NOTE;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+          }
+          UI_VIEW.showToast("📋 已複製完整日文劃位小紙條！");
+        } catch (err) {
+          UI_VIEW.showToast("⚠️ 請手動長按文字框選複製");
+        }
+      },
+
+      openStaffFullscreen() {
+        document.getElementById("staffFullscreenModal").classList.remove("hidden");
+      },
+
+      closeStaffFullscreen() {
+        document.getElementById("staffFullscreenModal").classList.add("hidden");
       },
 
       setCategory(cat) {
@@ -1559,9 +1773,10 @@
         FirebaseDataLayer.persist(cloned);
       },
 
-      // --- 備份匯出 / 匯入 / 雲端帳號狀態 ---
+      // --- 備份匯出 / 匯入 / 雲端設定 ---
       openDataModal() {
-        UI_VIEW.updateSyncBadge();
+        const savedCfg = localStorage.getItem(STORAGE_KEY_FB);
+        if (savedCfg) document.getElementById("firebaseConfigInput").value = savedCfg;
         document.getElementById("dataModal").classList.remove("hidden");
       },
 
@@ -1603,12 +1818,33 @@
         this.closeDataModal();
         FirebaseDataLayer.persist(structuredClone(DEFAULT_TRIP_DATA));
         UI_VIEW.showToast("🔄 已還原預設 11 天完整行程");
+      },
+
+      saveFirebaseConfig() {
+        const raw = document.getElementById("firebaseConfigInput").value.trim();
+        if (!raw) {
+          localStorage.removeItem(STORAGE_KEY_FB);
+          STATE.firebaseConnected = false;
+          UI_VIEW.updateSyncBadge();
+          this.closeDataModal();
+          UI_VIEW.showToast("已切換回本地離線儲存模式");
+          return;
+        }
+        try {
+          const cfg = JSON.parse(raw);
+          localStorage.setItem(STORAGE_KEY_FB, JSON.stringify(cfg));
+          FirebaseDataLayer.connect(cfg);
+          this.closeDataModal();
+          UI_VIEW.showToast("☁️ 正在連線 Firebase 雲端資料庫...");
+        } catch (e) {
+          alert("JSON 格式有誤，請貼上完整的 firebaseConfig JSON 物件。");
+        }
       }
     };
 
     /**
      * =========================================================================
-     * 模組 4: UI_VIEW（日系繪本風畫面渲染層）
+     * 模組 4: UI_VIEW（日系繪本風畫面渲染層：總覽 + 交通攻略 + 每日時間軸）
      * =========================================================================
      */
     const UI_VIEW = {
@@ -1620,6 +1856,8 @@
         const main = document.getElementById("appMain");
         if (STATE.activeTab === "overview") {
           main.innerHTML = this.renderOverviewPage();
+        } else if (STATE.activeTab === "transport") {
+          main.innerHTML = this.renderTransportPage();
         } else {
           main.innerHTML = this.renderDayPage(STATE.activeTab);
         }
@@ -1646,56 +1884,34 @@
 
       updateSyncBadge() {
         const badge = document.getElementById("syncStatusBadge");
-        const modalStatus = document.getElementById("modalAuthStatusText");
-        const modalLoginBtn = document.getElementById("modalLoginBtn");
-        const modalLogoutBtn = document.getElementById("modalLogoutBtn");
-
-        if (STATE.currentUser && STATE.firebaseConnected) {
-          const shortName = STATE.currentUser.email.split("@")[0];
-          badge.innerHTML = `
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span class="font-medium text-pine">雲端同步 (${shortName})</span>
-          `;
-          if (modalStatus) {
-            modalStatus.innerHTML = `✅ 目前已登入 <strong>${STATE.currentUser.email}</strong>，雲端資料庫已連線，任何修改皆會即時同步。`;
-            modalLoginBtn.classList.add("hidden");
-            modalLogoutBtn.classList.remove("hidden");
-          }
-        } else if (STATE.currentUser && !STATE.firebaseConnected) {
-          badge.innerHTML = `
-            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-            <span class="text-terracotta font-medium">無同步權限</span>
-            <button onclick="Controller.signOutGoogle()" class="underline ml-1 text-inkLight hover:text-ink">登出</button>
-          `;
-          if (modalStatus) {
-            modalStatus.innerHTML = `⚠️ 目前登入的 <strong>${STATE.currentUser.email}</strong> 不在 Firestore 允許清單中，請切換為已授權的 Gmail 帳號。`;
-            modalLoginBtn.classList.remove("hidden");
-            modalLogoutBtn.classList.remove("hidden");
-          }
+        if (STATE.firebaseConnected) {
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Firebase 雲端即時同步`;
         } else {
-          badge.innerHTML = `
-            <button onclick="Controller.signInGoogle()" class="inline-flex items-center gap-1 font-bold text-indigoHok hover:text-terracotta transition">
-              🔑 Google 登入同步
-            </button>
-          `;
-          if (modalStatus) {
-            modalStatus.textContent = "尚未登入 Google 帳號（目前為本機儲存）。登入已授權的 Gmail 後即可與旅伴雙向即時同步。";
-            modalLoginBtn.classList.remove("hidden");
-            modalLogoutBtn.classList.add("hidden");
-          }
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-pine"></span> 本地離線儲存中`;
         }
       },
 
       renderDayTabs() {
         const container = document.getElementById("dayTabsContainer");
         const isOv = STATE.activeTab === "overview";
+        const isTr = STATE.activeTab === "transport";
+
         let html = `
           <button onclick="Controller.switchTab('overview')"
             class="shrink-0 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 ${
               isOv ? "bg-indigoHok text-white shadow-sm" : "bg-white text-indigoHok hover:bg-iceblue border border-borderWashi"
             }">
-            🗺️ 總覽｜行程重點整理
+            🗺️ 總覽｜行程重點
           </button>
+
+          <button onclick="Controller.switchTab('transport')"
+            class="shrink-0 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 ${
+              isTr ? "bg-terracotta text-white shadow-sm" : "bg-white text-terracotta hover:bg-terracotta/10 border border-terracotta/40"
+            }">
+            🚃 交通攻略
+          </button>
+
+          <span class="shrink-0 h-5 w-px bg-borderWashi mx-1"></span>
         `;
 
         STATE.tripData.days_overview.forEach(d => {
@@ -1712,12 +1928,508 @@
         container.innerHTML = html;
       },
 
+      /**
+       * =====================================================================
+       * 新增獨立分頁：🚃 交通攻略（4 子分頁：時刻表 / Pass劃位 / 日文卡 / 雪季備案）
+       * =====================================================================
+       */
+      renderTransportPage() {
+        const subTabs = [
+          { key: "timetable", icon: "🕒", label: "時刻表", desc: "8 段班次與備用車" },
+          { key: "pass", icon: "🎫", label: "Pass 劃位攻略", desc: "精算省錢與 3 步驟" },
+          { key: "jpcard", icon: "📱", label: "日文劃位卡", desc: "站務員提示專用" },
+          { key: "snow", icon: "❄️", label: "雪季備案", desc: "選座・行李・大雪" }
+        ];
+
+        let contentHtml = "";
+        if (STATE.transportSubTab === "timetable") contentHtml = this.renderTransportTimetable();
+        else if (STATE.transportSubTab === "pass") contentHtml = this.renderTransportPassGuide();
+        else if (STATE.transportSubTab === "jpcard") contentHtml = this.renderTransportJpCard();
+        else contentHtml = this.renderTransportSnowTips();
+
+        return `
+          <!-- 交通攻略標題橫幅（維持原和紙繪本漸層配色） -->
+          <section class="rounded-2xl border border-borderWashi bg-gradient-to-r from-[#EDF4FA] via-[#FAF8F5] to-[#F7EDE6] p-5 sm:p-6 shadow-soft mb-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <span class="inline-block px-3 py-0.5 rounded-full bg-indigoHok/10 text-indigoHok text-xs font-bold tracking-wider">
+                  HOKKAIDO 11 DAYS TRANSIT HANDBOOK
+                </span>
+                <h2 class="font-serif font-bold text-xl sm:text-2xl text-indigoHok mt-1.5">
+                  🚃 2026 北海道 11 天交通實戰手冊
+                </h2>
+                <p class="text-xs sm:text-sm text-inkLight mt-1">
+                  整合 8 段鐵路／巴士時刻表、JR 5 日周遊券精算、機場櫃檯日文劃位小紙條與初冬大雪備案，離線也能單手秒查。
+                </p>
+              </div>
+              <div class="flex items-center gap-2 text-xs">
+                <div class="bg-white/90 px-3 py-2 rounded-xl border border-borderWashi text-center">
+                  <div class="text-inkLight">JR 5日Pass 效期</div>
+                  <div class="font-bold text-pine mt-0.5">12/01 ～ 12/05</div>
+                </div>
+                <div class="bg-white/90 px-3 py-2 rounded-xl border border-borderWashi text-center">
+                  <div class="text-inkLight">兩人預購現省</div>
+                  <div class="font-bold text-terracotta mt-0.5">¥8,200</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4 大子分頁導覽列 -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5">
+              ${subTabs.map(t => {
+                const active = STATE.transportSubTab === t.key;
+                return `
+                  <button onclick="Controller.switchTransportSubTab('${t.key}')"
+                    class="p-3 rounded-xl text-left transition border flex items-center gap-2.5 ${
+                      active
+                        ? "bg-indigoHok text-white border-indigoHok shadow-sm"
+                        : "bg-white/90 text-ink border-borderWashi hover:bg-iceblue/60"
+                    }">
+                    <span class="text-xl shrink-0">${t.icon}</span>
+                    <div class="min-w-0">
+                      <div class="font-bold text-xs sm:text-sm truncate">${t.label}</div>
+                      <div class="text-[11px] truncate ${active ? "text-iceblue/90" : "text-inkLight"}">${t.desc}</div>
+                    </div>
+                  </button>
+                `;
+              }).join("")}
+            </div>
+          </section>
+
+          <!-- 子分頁主內容 -->
+          <div class="max-w-4xl mx-auto">
+            ${contentHtml}
+          </div>
+
+          <!-- 手機版底部固定快捷導覽條（僅於「交通攻略」分頁且小螢幕顯示） -->
+          <div class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-washi/95 backdrop-blur-md border-t border-borderWashi px-2 py-1.5 shadow-lg">
+            <div class="grid grid-cols-4 gap-1">
+              ${subTabs.map(t => {
+                const active = STATE.transportSubTab === t.key;
+                return `
+                  <button onclick="Controller.switchTransportSubTab('${t.key}')"
+                    class="py-1.5 rounded-lg flex flex-col items-center justify-center text-[11px] font-bold transition ${
+                      active ? "bg-indigoHok text-white" : "text-inkLight"
+                    }">
+                    <span class="text-base leading-none mb-0.5">${t.icon}</span>
+                    <span>${t.label.replace("攻略", "")}</span>
+                  </button>
+                `;
+              }).join("")}
+            </div>
+          </div>
+        `;
+      },
+
+      // 交通子分頁 1：8 段交通時刻表（Timeline 卡片流 + Accordion 備用班次）
+      renderTransportTimetable() {
+        const tagClasses = {
+          pass: "bg-pine/15 text-pine border-pine/30",
+          reserve: "bg-terracotta/15 text-terracotta border-terracotta/30",
+          free: "bg-iceblue text-indigoHok border-indigoHok/20",
+          price: "bg-linen text-ink border-borderWashi",
+          neutral: "bg-mist text-inkLight border-borderWashi"
+        };
+
+        return `
+          <div class="relative pl-4 sm:pl-6 border-l-2 border-dashed border-indigoHok/30 space-y-5">
+            ${TRANSPORT_SEGMENTS.map(seg => {
+              const isExpanded = STATE.expandedTransportIds.has(seg.id);
+              const hasBackups = seg.backups && seg.backups.length > 0;
+
+              const noteBoxClass = seg.noteType === "warning"
+                ? "bg-terracotta/10 border-terracotta/40 text-terracotta"
+                : seg.noteType === "scenic"
+                  ? "bg-iceblue/80 border-indigoHok/20 text-indigoHok"
+                  : "bg-mist border-borderWashi text-inkLight";
+
+              return `
+                <article class="relative watercolor-card rounded-2xl p-4 sm:p-5 shadow-card hover:shadow-soft transition">
+                  <!-- 時間軸圓點 -->
+                  <span class="absolute -left-[23px] sm:-left-[31px] top-6 w-3.5 h-3.5 rounded-full bg-indigoHok ring-4 ring-washi"></span>
+
+                  <!-- 頂部：編號 + 日期 + 路線標題 -->
+                  <div class="flex flex-wrap items-start justify-between gap-2 pb-3 border-b border-borderWashi">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="text-base font-bold text-terracotta">${seg.num}</span>
+                        <span class="px-2.5 py-0.5 rounded-lg bg-indigoHok text-white text-xs font-bold">${seg.dateLabel}</span>
+                        <span class="text-xs font-medium text-inkLight">${seg.lineName}</span>
+                      </div>
+                      <h3 class="font-serif font-bold text-lg sm:text-xl text-indigoHok mt-1.5">${seg.route}</h3>
+                    </div>
+
+                    <!-- 狀態標籤列 -->
+                    <div class="flex flex-wrap gap-1.5">
+                      ${seg.tags.map(tg => `
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${tagClasses[tg.tone] || tagClasses.neutral}">
+                          ${tg.text}
+                        </span>
+                      `).join("")}
+                    </div>
+                  </div>
+
+                  <!-- 目標班次高亮區塊 -->
+                  <div class="mt-3.5">
+                    ${seg.transferLegs ? `
+                      <div class="space-y-2">
+                        ${seg.transferLegs.map(leg => `
+                          <div class="p-3 rounded-xl border ${
+                            leg.isTransfer
+                              ? "bg-terracotta/10 border-terracotta/30 text-terracotta"
+                              : "bg-iceblue/60 border-indigoHok/20 text-indigoHok"
+                          }">
+                            <div class="text-[11px] font-bold opacity-80 mb-0.5">${leg.step}</div>
+                            <div class="text-sm sm:text-base font-bold leading-snug">${leg.detail}</div>
+                          </div>
+                        `).join("")}
+                      </div>
+                    ` : `
+                      <div class="p-3.5 rounded-xl bg-iceblue/65 border border-indigoHok/20">
+                        <div class="text-[11px] font-bold text-indigoHok/75 mb-1">🎯 目標班次</div>
+                        <div class="text-base sm:text-lg font-bold text-indigoHok leading-snug">
+                          ${seg.targetMain}
+                        </div>
+                      </div>
+                    `}
+                  </div>
+
+                  <!-- 特別提醒框 -->
+                  ${seg.note ? `
+                    <div class="mt-3 px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm leading-relaxed ${noteBoxClass}">
+                      ${seg.noteType === "scenic" ? "🌊 景觀選座：" : seg.noteType === "warning" ? "" : "💡 搭乘提醒："}${seg.note}
+                    </div>
+                  ` : ""}
+
+                  <!-- 互動展開 Accordion：前後 2 班備用車次 -->
+                  ${hasBackups ? `
+                    <div class="mt-3.5 pt-3 border-t border-borderWashi">
+                      <button onclick="Controller.toggleBackupAccordion('${seg.id}')"
+                        class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl bg-mist hover:bg-linen text-indigoHok text-xs sm:text-sm font-bold transition">
+                        <span>🕒 查看前後 2 班備用車次（共 ${seg.backups.length} 班）</span>
+                        <span class="transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}">▼</span>
+                      </button>
+
+                      ${isExpanded ? `
+                        <div class="mt-2.5 overflow-x-auto rounded-xl border border-borderWashi bg-white">
+                          <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                              <tr class="bg-linen/70 text-indigoHok border-b border-borderWashi">
+                                <th class="py-2 px-3 font-bold w-16">順序列</th>
+                                <th class="py-2 px-3 font-bold">發車 → 抵達</th>
+                                <th class="py-2 px-3 font-bold">車種／班次</th>
+                                <th class="py-2 px-3 font-bold text-right">車程</th>
+                              </tr>
+                            </thead>
+                            <tbody class="divide-y divide-borderWashi/70">
+                              ${seg.backups.map(b => `
+                                <tr class="hover:bg-washi">
+                                  <td class="py-2 px-3 font-bold ${b.label.startsWith('前') ? 'text-pine' : 'text-terracotta'}">${b.label}</td>
+                                  <td class="py-2 px-3 font-bold text-ink whitespace-nowrap">${b.time}</td>
+                                  <td class="py-2 px-3 text-ink">${b.train}</td>
+                                  <td class="py-2 px-3 text-right text-inkLight whitespace-nowrap">${b.duration}</td>
+                                </tr>
+                              `).join("")}
+                            </tbody>
+                          </table>
+                        </div>
+                      ` : ""}
+                    </div>
+                  ` : ""}
+                </article>
+              `;
+            }).join("")}
+          </div>
+        `;
+      },
+
+      // 交通子分頁 2：JR 5 日周遊券精算儀表板 + 互動式 3 步驟 Check-list
+      renderTransportPassGuide() {
+        const checks = STATE.tripData.transport_pass_checks || [false, false, false];
+        const doneCount = checks.filter(Boolean).length;
+
+        const steps = [
+          {
+            title: "步驟 1：分辨劃位清單（4 趟必劃位特急 vs. 2 趟免劃位普通車）",
+            body: `
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2 text-xs">
+                <div class="p-3 rounded-xl bg-terracotta/10 border border-terracotta/30">
+                  <div class="font-bold text-terracotta mb-1">🔴 4 趟必劃位特急（全車指定席）</div>
+                  <ul class="space-y-1 text-ink list-disc list-inside">
+                    <li>12/2 札幌 → 旭川｜特急オホーツク 1号</li>
+                    <li>12/2 旭川 → 札幌｜特急ライラック 42号</li>
+                    <li>12/4 札幌 → 洞爺｜特急北斗 10 號</li>
+                    <li>12/5 洞爺 → 函館｜特急北斗 10 號</li>
+                  </ul>
+                </div>
+                <div class="p-3 rounded-xl bg-pine/10 border border-pine/30">
+                  <div class="font-bold text-pine mb-1">🟢 免劃位普通車（直接上車找空位）</div>
+                  <ul class="space-y-1 text-ink list-disc list-inside">
+                    <li>12/1 札幌 ⇄ 小樽｜函館本線普通（來回 2 趟）</li>
+                    <li>12/2 旭川 → 美瑛｜富良野線普通（轉乘段）</li>
+                  </ul>
+                </div>
+              </div>
+            `
+          },
+          {
+            title: "步驟 2：11/28 新千歲機場一次搞定（領齊 4 段共 8 張指定席券）",
+            body: `
+              <p class="text-xs sm:text-sm text-ink leading-relaxed mt-1.5">
+                抵達新千歲機場 B1 <strong>「JR 外籍旅客服務處」</strong>，備妥 <strong>護照正本＋海外預購電子憑證</strong>，直接亮出本網頁「📱 日文劃位卡」，指定 Pass 啟用日為 <span class="px-1.5 py-0.5 rounded bg-indigoHok text-white font-bold">2026/12/01</span>，當場一次領齊 4 段 × 2 人＝ <strong>共 8 張指定席車票</strong>。
+              </p>
+            `
+          },
+          {
+            title: "步驟 3：過閘門防呆鐵則（避免機器吃票或卡關）",
+            body: `
+              <div class="mt-2 p-3 rounded-xl bg-terracotta/10 border border-terracotta/30 text-xs sm:text-sm text-ink leading-relaxed">
+                ✅ 進出站時 <strong>只插「JR Pass 磁卡」</strong> 過自動閘門，並<strong>務必記得抽回</strong>！<br/>
+                🚫 <strong>「指定席券」絕對不可插入閘門</strong>，僅需妥善收好，上車後依車廂與座位號碼對號入座備查即可。
+              </div>
+            `
+          }
+        ];
+
+        return `
+          <!-- 省錢儀表板卡片 -->
+          <section class="watercolor-card rounded-2xl p-5 sm:p-6 shadow-soft mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-borderWashi">
+              <div>
+                <span class="text-xs font-bold text-pine">💰 12/1 ～ 12/5 交通費精算對比</span>
+                <h3 class="font-serif font-bold text-lg sm:text-xl text-indigoHok mt-0.5">北海道鐵路周遊券（5 日用）省錢儀表板</h3>
+              </div>
+              <span class="px-3.5 py-1.5 rounded-full bg-terracotta text-white text-xs sm:text-sm font-bold shadow-xs">
+                🎉 每人現省 ¥4,100（兩人共省 ¥8,200）
+              </span>
+            </div>
+
+            <!-- 價格視覺化條形對比 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+              <div class="p-4 rounded-2xl bg-mist border border-borderWashi">
+                <div class="text-xs font-bold text-inkLight">單買總原價（12/1～12/5 共 6 趟）</div>
+                <div class="text-2xl sm:text-3xl font-bold text-ink mt-1">¥26,100 <span class="text-xs font-normal text-inkLight">/ 人</span></div>
+                <div class="text-xs text-inkLight mt-1">兩人合計：<strong class="text-ink">¥52,200</strong></div>
+                <div class="w-full h-2.5 bg-linen rounded-full mt-3 overflow-hidden">
+                  <div class="h-full bg-inkLight/60 rounded-full" style="width: 100%"></div>
+                </div>
+                <div class="text-[11px] text-inkLight mt-2">
+                  明細：小樽來回 ¥1,600＋美瑛 ¥6,120＋旭川回程 ¥5,440＋洞爺 ¥6,690＋函館 ¥6,250
+                </div>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-iceblue/70 border-2 border-indigoHok/30">
+                <div class="text-xs font-bold text-indigoHok">JR 北海道鐵路周遊券 5 日用（海外預購價）</div>
+                <div class="text-2xl sm:text-3xl font-bold text-indigoHok mt-1">¥22,000 <span class="text-xs font-normal text-inkLight">/ 人</span></div>
+                <div class="text-xs text-indigoHok mt-1">兩人合計：<strong>¥44,000</strong>（現場購買為 ¥23,000/人）</div>
+                <div class="w-full h-2.5 bg-white rounded-full mt-3 overflow-hidden">
+                  <div class="h-full bg-pine rounded-full" style="width: 84.3%"></div>
+                </div>
+                <div class="text-[11px] font-bold text-terracotta mt-2">
+                  ★ 提前預購比現場買每人再多省 ¥1,000，整趟合計省下 ¥8,200！
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 互動式 3 步驟 Check-list -->
+          <section class="watercolor-card rounded-2xl p-5 sm:p-6 shadow-card">
+            <div class="flex items-center justify-between pb-3 border-b border-borderWashi">
+              <div>
+                <h3 class="font-serif font-bold text-lg text-indigoHok">☑️ 劃位＆乘車 3 步驟實戰 Check-list</h3>
+                <p class="text-xs text-inkLight mt-0.5">點擊卡片左側即可打勾記錄進度（自動存於本機與雲端）</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-bold ${doneCount === 3 ? "bg-pine text-white" : "bg-linen text-indigoHok"}">
+                完成進度 ${doneCount} / 3
+              </span>
+            </div>
+
+            <div class="space-y-3.5 mt-4">
+              ${steps.map((st, idx) => {
+                const checked = Boolean(checks[idx]);
+                return `
+                  <div class="p-4 rounded-2xl border transition ${
+                    checked ? "bg-pine/5 border-pine/40" : "bg-white border-borderWashi"
+                  }">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                      <input type="checkbox" ${checked ? "checked" : ""} onchange="Controller.togglePassStep(${idx})"
+                        class="mt-1 w-5 h-5 accent-pine rounded shrink-0 cursor-pointer" />
+                      <div class="flex-1">
+                        <div class="font-bold text-sm sm:text-base ${checked ? "text-pine line-through" : "text-indigoHok"}">
+                          ${st.title}
+                        </div>
+                        ${st.body}
+                      </div>
+                    </label>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </section>
+        `;
+      },
+
+      // 交通子分頁 3：📱 給站務員看的「日文劃位小紙條」
+      renderTransportJpCard() {
+        return `
+          <section class="bg-white rounded-2xl border-2 border-indigoHok shadow-soft overflow-hidden">
+            <!-- 頂部深靛藍標頭 -->
+            <div class="bg-indigoHok text-white px-5 py-4 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div class="text-[11px] tracking-wider opacity-85 uppercase">Show to JR Staff at New Chitose Airport</div>
+                <h3 class="font-serif font-bold text-lg sm:text-xl mt-0.5">📱 JR 櫃檯專用・日文劃位小紙條</h3>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="Controller.copyJapaneseNote()"
+                  class="px-3.5 py-2 rounded-xl bg-white text-indigoHok text-xs sm:text-sm font-bold hover:bg-iceblue transition shadow-xs">
+                  📋 一鍵複製全文
+                </button>
+                <button onclick="Controller.openStaffFullscreen()"
+                  class="px-3.5 py-2 rounded-xl bg-terracotta text-white text-xs sm:text-sm font-bold hover:opacity-95 transition shadow-xs">
+                  🔍 全螢幕展示模式
+                </button>
+              </div>
+            </div>
+
+            <!-- 高對比大字體展示卡片內容 -->
+            <div class="p-5 sm:p-7 space-y-5">
+              <div class="p-4 rounded-xl bg-washi border border-borderWashi">
+                <p class="text-base sm:text-xl font-bold text-ink leading-relaxed">
+                  すみません、JR北海道レールパス（5日間用）の引き換えと、以下の指定席の予約（大人2名・隣同士の席）をお願いします。
+                </p>
+              </div>
+
+              <div class="flex items-center justify-center p-4 rounded-xl bg-iceblue/80 border-2 border-indigoHok/30">
+                <div class="text-center">
+                  <div class="text-xs font-bold text-indigoHok">【利用開始日】</div>
+                  <div class="text-2xl sm:text-3xl font-bold text-terracotta tracking-wide mt-0.5">2026年12月1日</div>
+                </div>
+              </div>
+
+              <!-- 4 段指定席清晰大字列表 -->
+              <div class="space-y-3 text-base sm:text-lg font-bold text-ink">
+                <div class="p-4 rounded-xl bg-washi border border-indigoHok/25 flex items-start gap-3">
+                  <span class="shrink-0 w-7 h-7 rounded-full bg-indigoHok text-white text-sm flex items-center justify-center">1</span>
+                  <div>
+                    <div>12月2日 札幌 (06:52) → 旭川 (08:27)</div>
+                    <div class="text-indigoHok mt-0.5">特急オホーツク 1号</div>
+                  </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-washi border border-indigoHok/25 flex items-start gap-3">
+                  <span class="shrink-0 w-7 h-7 rounded-full bg-indigoHok text-white text-sm flex items-center justify-center">2</span>
+                  <div>
+                    <div>12月2日 旭川 (20:00) → 札幌 (21:25)</div>
+                    <div class="text-indigoHok mt-0.5">特急ライラック 42号</div>
+                  </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-washi border border-indigoHok/25 flex items-start gap-3">
+                  <span class="shrink-0 w-7 h-7 rounded-full bg-indigoHok text-white text-sm flex items-center justify-center">3</span>
+                  <div>
+                    <div>12月4日 札幌 (10:56) → 洞爺 (12:50)</div>
+                    <div class="text-indigoHok mt-0.5">特急北斗 10号</div>
+                    <div class="text-sm text-pine mt-1">（可能であれば進行方向左側 A・B席）</div>
+                  </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-washi border border-indigoHok/25 flex items-start gap-3">
+                  <span class="shrink-0 w-7 h-7 rounded-full bg-indigoHok text-white text-sm flex items-center justify-center">4</span>
+                  <div>
+                    <div>12月5日 洞爺 (12:50) → 函館 (14:40)</div>
+                    <div class="text-indigoHok mt-0.5">特急北斗 10号</div>
+                    <div class="text-sm text-pine mt-1">（可能であれば進行方向左側 A・B席）</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 原文純文字檢視區（方便核對與一鍵複製） -->
+              <div class="pt-4 border-t border-borderWashi">
+                <div class="text-xs font-bold text-inkLight mb-2">📄 原始全文（複製內容完全一致）：</div>
+                <pre class="whitespace-pre-wrap text-xs sm:text-sm bg-mist p-4 rounded-xl border border-borderWashi text-ink font-sans leading-relaxed select-all">${JP_RESERVATION_NOTE}</pre>
+              </div>
+            </div>
+          </section>
+        `;
+      },
+
+      // 交通子分頁 4：初冬乘車秘笈與大雪備案
+      renderTransportSnowTips() {
+        return `
+          <div class="space-y-5">
+            <!-- 1. 景觀選座指南 -->
+            <section class="watercolor-card rounded-2xl p-5 sm:p-6 shadow-card">
+              <div class="flex items-center gap-2 pb-3 border-b border-borderWashi">
+                <span class="text-xl">🌊</span>
+                <h3 class="font-serif font-bold text-lg text-indigoHok">景觀選座黃金指南</h3>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 text-sm">
+                <div class="p-4 rounded-xl bg-iceblue/65 border border-indigoHok/20">
+                  <div class="text-xs font-bold text-indigoHok mb-1">12/1 札幌 ⇄ 小樽（JR 函館本線）</div>
+                  <ul class="space-y-1.5 text-ink text-xs sm:text-sm">
+                    <li>• <strong>去程（札幌 → 小樽）</strong>：選 <span class="px-1.5 py-0.5 rounded bg-indigoHok text-white font-bold">右側靠窗</span>，緊貼石狩灣雪白海岸線。</li>
+                    <li>• <strong>回程（小樽 → 札幌）</strong>：選 <span class="px-1.5 py-0.5 rounded bg-pine text-white font-bold">左側靠窗</span>。</li>
+                  </ul>
+                </div>
+
+                <div class="p-4 rounded-xl bg-iceblue/65 border border-indigoHok/20">
+                  <div class="text-xs font-bold text-indigoHok mb-1">12/4 札幌 → 洞爺 ＆ 12/5 洞爺 → 函館（特急北斗號）</div>
+                  <p class="text-ink text-xs sm:text-sm leading-relaxed">
+                    強烈推薦劃 <span class="px-1.5 py-0.5 rounded bg-terracotta text-white font-bold">左側 A / B 席</span>！沿途飽覽壯闊內浦灣雪景海灣，並有機會遠眺覆雪的北海道駒岳。
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- 2. 大行李放置技巧 -->
+            <section class="watercolor-card rounded-2xl p-5 sm:p-6 shadow-card">
+              <div class="flex items-center gap-2 pb-3 border-b border-borderWashi">
+                <span class="text-xl">🧳</span>
+                <h3 class="font-serif font-bold text-lg text-indigoHok">28～29 吋大行李箱放置秘笈</h3>
+              </div>
+              <div class="mt-4 p-4 rounded-xl bg-mist border border-borderWashi text-xs sm:text-sm text-ink leading-relaxed">
+                搭乘 JR 北海道特急列車（如特急北斗號、紫丁香號、鄂霍次克號）攜帶 <strong>28～29 吋大型行李箱</strong> 時，劃位建議優先挑選 <strong>車廂最前排或最後一排座位</strong>，可就近看顧車廂出入口旁的大型行李置物區，上下車搬運也更省力從容。
+              </div>
+            </section>
+
+            <!-- 3. 初冬風雪延誤與停駛備案 -->
+            <section class="watercolor-card rounded-2xl p-5 sm:p-6 shadow-card border-terracotta/40">
+              <div class="flex items-center gap-2 pb-3 border-b border-borderWashi">
+                <span class="text-xl">🌨️</span>
+                <h3 class="font-serif font-bold text-lg text-terracotta">初冬風雪延誤與停駛緊急備案</h3>
+              </div>
+              <div class="space-y-3.5 mt-4 text-xs sm:text-sm">
+                <div class="p-4 rounded-xl bg-terracotta/10 border border-terracotta/30">
+                  <div class="font-bold text-terracotta mb-1">⚠️ 2026/3 起 JR 北海道特急已全面取消自由席！</div>
+                  <p class="text-ink leading-relaxed">
+                    若因風雪延誤或臨時想更改搭車時間，<strong>切勿直接跳上其他特急列車</strong>！請持 <strong>JR 5 日 Pass</strong> 至車站綠色 <strong>「指定席券売機」（內建繁體中文介面）</strong> 即可免費重新劃位出票。
+                  </p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-white border border-borderWashi">
+                  <div class="font-bold text-indigoHok mb-1">🚌 備案 A：札幌 ⇄ 小樽 若 JR 停駛</div>
+                  <p class="text-ink leading-relaxed">
+                    改搭 <strong>「高速おたる号」都市間高速巴士</strong>，由札幌站前巴士總站發車，班次密集，車程約 <strong>60 分鐘</strong> 即可直達小樽。
+                  </p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-white border border-borderWashi">
+                  <div class="font-bold text-indigoHok mb-1">🏨 備案 B：札幌 → 洞爺 若 JR 停駛</div>
+                  <p class="text-ink leading-relaxed">
+                    出發前務必先記下 <strong>洞爺湖乃之風溫泉飯店</strong> 聯繫電話，確認<strong>「預約制札幌直達接駁巴士」</strong>候補或改乘道南高速巴士備案，確保順利入住不耽誤泡湯。
+                  </p>
+                </div>
+              </div>
+            </section>
+          </div>
+        `;
+      },
+
       // 手繪水彩風格北海道路線總覽 SVG 插畫地圖
       renderHokkaidoRouteMapSVG() {
         return `
           <div class="relative overflow-hidden rounded-2xl border border-borderWashi bg-gradient-to-br from-[#EDF4FA] via-[#FAF6EE] to-[#F7ECE6] p-4 sm:p-6 shadow-soft mb-6">
             <div class="flex flex-col lg:flex-row items-center gap-6">
-              <!-- 左側標題與六大樞紐導覽 -->
               <div class="lg:w-5/12 space-y-3">
                 <span class="inline-block px-3 py-1 rounded-full bg-indigoHok/10 text-indigoHok text-xs font-bold tracking-wider">
                   HOKKAIDO EARLY WINTER STORYBOOK
@@ -1739,6 +2451,9 @@
                     <div class="text-ink mt-0.5">12/08 函館HKD ➔ 桃園</div>
                   </div>
                 </div>
+                <button onclick="Controller.switchTab('transport')" class="w-full py-2 px-3 rounded-xl bg-terracotta text-white text-xs font-bold hover:opacity-95 transition shadow-xs flex items-center justify-center gap-1.5">
+                  🚃 查看完整 8 段交通時刻表・JR Pass 劃位攻略 ➔
+                </button>
               </div>
 
               <!-- 右側水彩繪本風六大目的地路線圖 -->
@@ -1750,60 +2465,45 @@
                       <stop offset="100%" stop-color="#F2EFE7"/>
                     </linearGradient>
                   </defs>
-                  <!-- 柔和北海道島嶼輪廓剪影 -->
                   <path d="M 330 25 L 430 65 L 555 85 L 535 145 L 460 165 L 415 215 L 335 185 L 265 190 L 210 235 L 155 255 L 130 225 L 175 180 L 185 135 L 245 115 L 295 70 Z"
                     fill="url(#hokkaidoLand)" stroke="#C9C0B1" stroke-width="2" />
-                  <!-- 裝飾雪花與松樹 -->
                   <text x="470" y="62" font-size="16" opacity="0.5">❄️</text>
                   <text x="115" y="130" font-size="15" opacity="0.5">❄️</text>
                   <text x="515" y="185" font-size="18" opacity="0.6">🌲</text>
                   <text x="275" y="55" font-size="16" opacity="0.6">🌲</text>
-
-                  <!-- 串聯六大樞紐的虛線路徑 -->
                   <path d="M 310 158 L 265 130 L 220 112 L 365 95 L 235 178 L 165 232"
                     fill="none" stroke="#C85A32" stroke-width="2.5" class="dashed-route" />
 
-                  <!-- 樞紐 1: 新千歲機場 (CTS) -->
                   <g class="cursor-pointer" onclick="Controller.switchTab(1)">
                     <circle cx="310" cy="158" r="8" fill="#C85A32" />
                     <rect x="322" y="143" width="118" height="34" rx="8" fill="#FFFFFF" stroke="#E0D9CC"/>
                     <text x="330" y="158" font-size="11" font-weight="bold" fill="#1E3A5F">1. 新千歲機場 CTS</text>
                     <text x="330" y="171" font-size="9.5" fill="#5C6470">玉米麵包・一幻拉麵</text>
                   </g>
-
-                  <!-- 樞紐 2: 札幌 (Day 1-3, 6) -->
                   <g class="cursor-pointer" onclick="Controller.switchTab(2)">
                     <circle cx="265" cy="130" r="8" fill="#1E3A5F" />
                     <rect x="255" y="82" width="102" height="36" rx="8" fill="#1E3A5F"/>
                     <text x="263" y="98" font-size="11" font-weight="bold" fill="#FFFFFF">2. 札幌 Sapporo</text>
                     <text x="263" y="111" font-size="9.5" fill="#E6EEF5">Day 1-3, 6｜燈樹節・神宮</text>
                   </g>
-
-                  <!-- 樞紐 3: 小樽 (Day 4) -->
                   <g class="cursor-pointer" onclick="Controller.switchTab(4)">
                     <circle cx="220" cy="112" r="8" fill="#2D5A43" />
                     <rect x="92" y="92" width="118" height="36" rx="8" fill="#FFFFFF" stroke="#2D5A43"/>
                     <text x="100" y="108" font-size="11" font-weight="bold" fill="#2D5A43">3. 小樽 Otaru (D4)</text>
                     <text x="100" y="121" font-size="9.5" fill="#5C6470">青之運河・三角市場</text>
                   </g>
-
-                  <!-- 樞紐 4: 美瑛・富良野 (Day 5) -->
                   <g class="cursor-pointer" onclick="Controller.switchTab(5)">
                     <circle cx="365" cy="95" r="8" fill="#C85A32" />
                     <rect x="378" y="75" width="136" height="36" rx="8" fill="#FFFFFF" stroke="#C85A32"/>
                     <text x="386" y="91" font-size="11" font-weight="bold" fill="#C85A32">4. 美瑛・富良野 (D5)</text>
                     <text x="386" y="104" font-size="9.5" fill="#5C6470">日落粉紅雪・精靈露台</text>
                   </g>
-
-                  <!-- 樞紐 5: 洞爺湖 (Day 7) -->
                   <g class="cursor-pointer" onclick="Controller.switchTab(7)">
                     <circle cx="235" cy="178" r="8" fill="#1E3A5F" />
                     <rect x="247" y="182" width="122" height="36" rx="8" fill="#FFFFFF" stroke="#1E3A5F"/>
                     <text x="255" y="198" font-size="11" font-weight="bold" fill="#1E3A5F">5. 洞爺湖 (D7)</text>
                     <text x="255" y="211" font-size="9.5" fill="#5C6470">有珠山・無邊際露天湯</text>
                   </g>
-
-                  <!-- 樞紐 6: 函館 (Day 8-11) -->
                   <g class="cursor-pointer" onclick="Controller.switchTab(8)">
                     <circle cx="165" cy="232" r="9" fill="#C85A32" />
                     <rect x="180" y="224" width="144" height="36" rx="8" fill="#C85A32"/>
@@ -1834,7 +2534,6 @@
         return `
           ${this.renderHokkaidoRouteMapSVG()}
 
-          <!-- 篩選與檢視切換工具列 -->
           <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div class="flex flex-wrap items-center gap-1.5">
               <span class="text-xs font-bold text-indigoHok mr-1">📍 區域篩選：</span>
@@ -1852,11 +2551,11 @@
 
             <div class="flex items-center gap-1.5 bg-linen p-1 rounded-xl border border-borderWashi text-xs">
               <button onclick="Controller.setOverviewLayout('cards')"
-                class="px-3 py-1 rounded-lg font-medium transition ${STATE.overviewLayout === 'cards' ? 'bg-white text-indigoHok shadow-sm' : 'text-inkLight'}">
+                class="px-3 py-1 rounded-lg font-medium transition ${STATE.overviewLayout === 'cards' ? 'bg-white text-indigoHok shadow-xs' : 'text-inkLight'}">
                 🗂️ 雜誌卡片
               </button>
               <button onclick="Controller.setOverviewLayout('table')"
-                class="px-3 py-1 rounded-lg font-medium transition ${STATE.overviewLayout === 'table' ? 'bg-white text-indigoHok shadow-sm' : 'text-inkLight'}">
+                class="px-3 py-1 rounded-lg font-medium transition ${STATE.overviewLayout === 'table' ? 'bg-white text-indigoHok shadow-xs' : 'text-inkLight'}">
                 📋 一覽總表
               </button>
             </div>
@@ -1872,7 +2571,6 @@
             ${days.map(d => `
               <article class="watercolor-card rounded-2xl p-4 sm:p-5 shadow-card hover:shadow-soft transition flex flex-col justify-between">
                 <div>
-                  <!-- 卡片頂部：天數 + 日期 + 進入詳情按鈕 -->
                   <div class="flex items-start justify-between gap-2 pb-3 border-b border-borderWashi">
                     <div>
                       <div class="flex items-center gap-2">
@@ -1893,7 +2591,6 @@
                     </div>
                   </div>
 
-                  <!-- 每日大景點 -->
                   <div class="mt-3">
                     <div class="text-xs font-bold text-pine mb-1.5">🏔️ 每日大景點</div>
                     <div class="flex flex-wrap gap-1.5">
@@ -1903,7 +2600,6 @@
                     </div>
                   </div>
 
-                  <!-- 每日三餐重點 -->
                   <div class="mt-3.5 bg-mist/70 rounded-xl p-3 border border-borderWashi/80 space-y-1.5 text-xs">
                     <div class="flex gap-2">
                       <span class="shrink-0 font-bold text-amber-700 w-11">🌅 早餐</span>
@@ -1920,7 +2616,6 @@
                   </div>
                 </div>
 
-                <!-- 住宿 -->
                 <div class="mt-3 pt-2.5 border-t border-borderWashi flex items-center gap-2 text-xs text-inkLight">
                   <span>🏨</span>
                   <span class="font-medium text-ink">${d.hotel}</span>
@@ -1996,7 +2691,6 @@
         ];
 
         return `
-          <!-- 當日繪本橫幅與重點摘要卡 -->
           <section class="rounded-2xl border border-borderWashi bg-gradient-to-r from-[#EEF4FA] via-[#FAF8F5] to-[#F7EDE6] p-5 sm:p-6 shadow-soft mb-5">
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -2021,7 +2715,6 @@
               </div>
             </div>
 
-            <!-- 當日三餐與住宿速覽條 -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 mt-4 text-xs">
               <div class="bg-white/90 p-3 rounded-xl border border-borderWashi">
                 <div class="font-bold text-amber-700 mb-0.5">🌅 早餐</div>
@@ -2042,14 +2735,13 @@
             </div>
           </section>
 
-          <!-- 分類快速篩選 & 編輯模式新增按鈕 -->
           <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
             <div class="flex flex-wrap items-center gap-1.5">
               ${categories.map(c => `
                 <button onclick="Controller.setCategory('${c.key}')"
                   class="px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium transition ${
                     STATE.selectedCategory === c.key
-                      ? "bg-indigoHok text-white shadow-sm"
+                      ? "bg-indigoHok text-white shadow-xs"
                       : "bg-white text-inkLight hover:text-indigoHok border border-borderWashi"
                   }">
                   ${c.icon} ${c.key}
@@ -2064,7 +2756,6 @@
             ` : ""}
           </div>
 
-          <!-- 時間軸卡片列表 -->
           <div class="relative pl-4 sm:pl-6 border-l-2 border-dashed border-terracotta/40 space-y-5">
             ${filteredItems.length === 0 ? `
               <div class="bg-white rounded-2xl p-8 text-center border border-borderWashi text-sm text-inkLight">
@@ -2090,10 +2781,8 @@
 
         return `
           <div class="relative watercolor-card rounded-2xl p-4 sm:p-5 shadow-card hover:shadow-soft transition">
-            <!-- 時間軸圓點 -->
             <span class="absolute -left-[23px] sm:-left-[31px] top-6 w-3.5 h-3.5 rounded-full bg-terracotta ring-4 ring-washi"></span>
 
-            <!-- 頂部：時間 + 類別 + Google Maps 導航 + 編輯操作 -->
             <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-borderWashi">
               <div class="flex flex-wrap items-center gap-2">
                 <span class="px-2.5 py-1 rounded-lg bg-indigoHok text-white text-xs font-bold tracking-wide">
@@ -2122,7 +2811,6 @@
               </div>
             </div>
 
-            <!-- 標題與主內容 -->
             <div class="mt-3 grid grid-cols-1 ${item.image_url ? "md:grid-cols-3 gap-4" : ""}">
               <div class="${item.image_url ? "md:col-span-2" : ""} space-y-2.5">
                 <h3 class="font-serif font-bold text-base sm:text-lg text-indigoHok">${item.title}</h3>
@@ -2146,7 +2834,6 @@
                   </div>
                 ` : ""}
 
-                <!-- 互動式勾選清單（閱讀模式與編輯模式皆可直接點擊勾選） -->
                 ${item.checklist && item.checklist.length > 0 ? `
                   <div class="pt-1">
                     <div class="text-[11px] font-bold text-inkLight mb-1.5">☑️ 旅途小任務（點擊可打勾）：</div>
@@ -2168,7 +2855,7 @@
 
               ${item.image_url ? `
                 <div class="md:col-span-1">
-                  <img src="${item.image_url}" alt="${item.title}" class="w-full h-44 object-cover rounded-xl border border-borderWashi shadow-sm" />
+                  <img src="${item.image_url}" alt="${item.title}" class="w-full h-44 object-cover rounded-xl border border-borderWashi shadow-xs" />
                 </div>
               ` : ""}
             </div>
@@ -2182,15 +2869,13 @@
         toast.classList.remove("translate-y-16", "opacity-0");
         setTimeout(() => {
           toast.classList.add("translate-y-16", "opacity-0");
-        }, 2600);
+        }, 2400);
       }
     };
 
-    // 啟動應用（先渲染本地資料，待 Firebase Module 載入後自動接手驗證與雲端同步）
     window.addEventListener("DOMContentLoaded", () => {
-      FirebaseDataLayer.initLocal();
-      if (window.__FirebaseSDK) {
-        FirebaseDataLayer.initFirebase();
+      if (!STATE.tripData) {
+        FirebaseDataLayer.init();
       }
     });
   </script>
